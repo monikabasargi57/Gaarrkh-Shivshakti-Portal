@@ -1,0 +1,2071 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gaarrkh / Shivshakti Portal — Registration • Login • Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* New color palette: dark teal + amber */
+    --bg1: #022f34;                         /* deepest teal */
+    --bg2: linear-gradient(180deg,#03363b,#042f3a); /* page background gradient */
+    --accent: #ffb703;                      /* warm amber (buttons / highlights) */
+    --accent-strong: #ff9f00;               /* slightly stronger amber */
+    --muted: #a7c6c8;                       /* muted text */
+    --card: #08343a;                        /* card background */
+    --white: #ffffff;
+    --input-bg: #f7faf9;                    /* input background (light for contrast) */
+    --input-text: #022f34;                  /* dark text on inputs */
+    --shadow: rgba(1,21,25,0.35);           /* subtle dark shadow */
+    --danger: #ff6b6b;
+    --success: #16a34a;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:Inter,system-ui,Arial,sans-serif;
+    min-height:100vh;
+    background:var(--bg2);
+    color:var(--white);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .container{max-width:1200px;margin:18px auto;padding:18px}
+  .card{
+    background:rgba(255,255,255,0.03);
+    border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.04);
+    box-shadow:0 8px 30px var(--shadow);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+  }
+
+  header{display:flex;align-items:center;gap:16px;justify-content:center}
+  header img{height:86px;width:86px;object-fit:contain;border-radius:12px;border:2px solid rgba(255,255,255,0.04)}
+  h1{margin:8px 0 0 0;font-size:22px;color:var(--white);text-align:center}
+  .muted{color:var(--muted);font-size:13px;text-align:center}
+  .nav{display:flex;gap:8px;margin:12px auto;justify-content:center}
+
+  .btn{
+    padding:10px 16px;border-radius:10px;border:none;
+    background: linear-gradient(180deg,var(--accent),var(--accent-strong));
+    color: #062026;font-weight:800;cursor:pointer;
+    box-shadow: 0 6px 18px rgba(15,88,46,0.12);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:hover{ transform: translateY(-2px); box-shadow: 0 10px 30px rgba(15,88,46,0.14); }
+  .btn.ghost{
+    background:transparent;color:var(--white);
+    border:1px solid rgba(255,255,255,0.06);
+    box-shadow:none;
+  }
+
+  .hidden{display:none}
+  .levels{display:flex;gap:12px;justify-content:center;margin-top:12px}
+  .level-btn{padding:12px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);cursor:pointer;background:transparent;color:var(--white);font-weight:700}
+  .level-btn.selected{background:var(--white);color:#062026}
+
+  form .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+  .col{flex:1 1 240px;min-width:200px}
+  label{display:block;margin-top:6px;font-weight:700;color:var(--muted);font-size:13px}
+
+  input,select,textarea{
+    width:100%;padding:10px;border-radius:8px;border:0;background:var(--input-bg);color:var(--input-text);
+    margin-top:6px;font-size:14px;
+    box-shadow: inset 0 1px 0 rgba(0,0,0,0.04);
+  }
+  textarea{min-height:90px}
+
+  .flex{display:flex;gap:8px;align-items:center}
+  .wrap{display:flex;gap:16px}
+  .sidebar{width:260px;border-right:1px solid rgba(255,255,255,0.04);padding:16px;background:rgba(255,255,255,0.02)}
+  .main{flex:1;padding:16px}
+.main {
+  overflow-y: auto;
+  max-height: 80vh;
+}
+  .profile-box{padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
+  .avatar{width:72px;height:72px;border-radius:8px;background:#e9e9ef;color:#062034;display:flex;align-items:center;justify-content:center;font-weight:800}
+
+  .navcol button{display:block;width:100%;text-align:left;padding:10px;border-radius:8px;border:0;background:transparent;color:var(--white);cursor:pointer;margin-bottom:8px}
+  .navcol button.active{background:rgba(255,255,255,0.03);border-left:4px solid var(--accent)}
+
+  .small{font-size:13px;color:var(--muted)}
+  .task-item{border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(0,0,0,0.06)}
+  .badge{background:var(--accent);color:#062026;padding:6px 8px;border-radius:20px;font-weight:700}
+  .gold-input-select{background:#ffffff;color:#000;padding:10px;border-radius:8px}
+  .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-day{background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;min-height:70px;border:1px solid rgba(0,0,0,0.06)}
+  .cal-day .date{font-weight:800;color:var(--muted)}
+  footer{margin-top:18px;text-align:center;color:rgba(255,255,255,0.44);font-size:12px}
+
+  /* small helpers */
+  .muted-2{color:rgba(255,255,255,0.6)}
+  .danger{color:var(--danger)}
+  .success{color:var(--success)}
+
+  @media(max-width:900px){
+  .wrap {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    order: 2;
+    border-right: none;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .main {
+    order: 1;
+    padding: 12px;
+  }
+  .navcol button {
+    text-align: center;
+    font-size: 14px;
+    padding: 10px;
+  }
+  header img {
+    height: 64px;
+    width: 64px;
+  }
+  .card {
+    padding: 12px;
+  }
+  input, select, textarea {
+    font-size: 16px; /* prevent zoom on iOS */
+  }
+}
+
+
+/* 🔧 FIX mobile dropdown cutoff issue */
+.gold-input-select {
+  width: 100%;
+  max-width: 100%;
+  appearance: auto;
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 1000 !important;
+}
+
+/* prevent row/col wrappers from clipping dropdowns */
+.row, .col {
+  overflow: visible !important;
+}
+
+/* make sure dropdown expands fully on tap */
+select, option {
+  white-space: normal;
+  height: auto;
+  line-height: 1.4;
+}
+
+/* iOS/Android safe fix */
+@supports (-webkit-touch-callout: none) {
+  select {
+    font-size: 16px; /* avoids zoom */
+  }
+}
+select {
+  max-height: none !important;
+  overflow-y: auto !important;
+  position: relative !important;
+  z-index: 9999 !important;
+}
+
+@media(max-width:600px){
+  .btn, input, select, textarea {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  .flex {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+@media(max-width:600px){
+  h3, h4 {
+    font-size: 18px;
+  }
+  .navcol button {
+    font-size: 13px;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="container">
+    <!-- TOP CARD / WELCOME -->
+    <div class="card" id="welcomeCard">
+      <header>
+        <img src="logo.jpg" id="logoMain" alt="Logo" onerror="this.style.display='none'">
+      </header>
+      <h1 id="mainTitle">Welcome to Gaarrkh / Shivshakti Portal</h1>
+      <div class="muted">Register new user — or choose your organisation and continue</div>
+
+      <div style="margin-top:18px;display:flex;justify-content:center;gap:12px">
+        <button class="btn" onclick="showScreen('selectOrg')">Get Started →</button>
+        <button class="btn ghost" onclick="showScreen('login')">Already registered? Login</button>
+      </div>
+    </div>
+
+    <!-- SELECT ORGANISATION -->
+    <div id="selectOrg" class="card hidden" style="margin-top:12px">
+      <h2 style="text-align:center;margin:0;color:var(--white)">Select Organisation</h2>
+      <div class="muted" style="text-align:center;margin-top:6px">Choose Gaarrkh or Shivshakti to start registration</div>
+      <div class="levels">
+        <div class="level-btn" id="btn-gaarrkh" data-level="gaarrkh">Gaarrkh</div>
+        <div class="level-btn" id="btn-shivshakti" data-level="shivshakti">Shivshakti</div>
+      </div>
+      <div style="margin-top:14px;display:flex;justify-content:center;gap:10px">
+        <button class="btn" id="toStep2">Continue →</button>
+        <button class="btn ghost" onclick="showScreen('welcomeCard')">Back</button>
+      </div>
+    </div>
+
+    <!-- REGISTRATION MULTI-STEP -->
+    <div id="registerCard" class="card hidden" style="margin-top:12px">
+      <h3 style="margin:0;color:var(--white)">Register New User</h3>
+      <div class="muted">Follow steps: Personal → Bank → Category & Terms → Finish</div>
+
+      <div id="regSteps" style="margin-top:14px">
+        <!-- Step 2: Personal -->
+        <div id="regStep2">
+          <strong>Personal Details</strong>
+          <form id="regForm">
+            <input type="hidden" id="reg_level">
+            <div class="row">
+              <div class="col">
+                <label>Registration ID</label>
+                <div style="display:flex;gap:8px">
+                  <input id="regId" readonly>
+                  <button type="button" class="btn ghost" id="regen">Regenerate</button>
+                </div>
+                <div class="small">Auto created (prefix by organisation)</div>
+              </div>
+              <div class="col"><label>Full name *</label><input id="fullName" required></div>
+              <div class="col"><label>Email *</label><input id="email" type="email" required></div>
+            </div>
+
+            <div class="row">
+              <div class="col"><label>Contact number *</label><input id="mobile" pattern="[0-9]{10}" required></div>
+              <div class="col"><label>Alternate number</label><input id="altMobile"></div>
+              <div class="col"><label>State *</label><input id="state" required></div>
+            </div>
+
+            <div class="row">
+              <div class="col"><label>City *</label><input id="city" required></div>
+              <div class="col"><label>Pincode *</label><input id="pincode" pattern="[0-9]{6}" required></div>
+              <div class="col"><label>Service area — City</label><input id="serviceCity"></div>
+            </div>
+
+            <div class="row">
+              <div class="col"><label>Service area — Zip</label><input id="serviceZip"></div>
+              <div class="col"><label>Aadhaar *</label><input id="aadhaar" pattern="[0-9]{12}" required></div>
+              <div class="col"><label>PAN *</label><input id="pan" pattern="[A-Z]{5}[0-9]{4}[A-Z]" required></div>
+            </div>
+
+            <div style="margin-top:12px;display:flex;justify-content:space-between">
+              <div><button type="button" class="btn ghost" id="backToSelect" onclick="showScreen('selectOrg')">Back</button></div>
+              <div><button type="button" class="btn" id="toBank">Continue to Bank →</button></div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 3: Bank & credentials -->
+        <div id="regStep3" class="hidden" style="margin-top:12px">
+          <strong>Bank & Credentials</strong>
+          <div class="row">
+            <div class="col"><label>Account holder name *</label><input id="accHolder" required></div>
+            <div class="col"><label>Account number *</label><input id="accNumber" required></div>
+            <div class="col"><label>Bank name *</label>
+              <select id="bankName" class="gold-input-select">
+                <option value="">Select bank</option>
+                <option>AU SMALL FINANCE BANK SANGLI</option>
+                <option>SBI</option>
+                <option>HDFC</option>
+                <option>Bank of Maharashtra</option>
+                <option>ICICI</option>
+              </select>
+            </div>
+            <div class="col"><label>IFSC *</label><input id="ifsc" required></div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <div class="col"><label>Username (auto = email)</label><input id="username" readonly></div>
+            <div class="col"><label>Password *</label><input id="password" type="password" required></div>
+            <div class="col"><label>Confirm password *</label><input id="password2" type="password" required></div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;justify-content:space-between">
+            <button class="btn ghost" id="backToPersonal">Back</button>
+            <button class="btn" id="toCategory">Continue to Category →</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Category & Terms -->
+        <div id="regStep4" class="hidden" style="margin-top:12px">
+          <strong>Category & Terms</strong>
+          <div class="row">
+            <div class="col"><label>Selected Level</label><input id="showLevel" readonly></div>
+            <div class="col"><label>Main category *</label>
+              <select id="mainCategory" class="gold-input-select">
+                <option value="">Select</option>
+                <option value="central">Central</option>
+                <option value="state">State</option>
+                <option value="divisional">Divisional</option>
+                <option value="zone">Zone</option>
+                <option value="cluster">Cluster</option>
+                <option value="miniCluster">Mini Cluster</option>
+                <option value="groupLeader">Group Leader</option>
+                <option value="worker">Worker</option>
+                <option value="sabhasad">Sabhasad</option>
+              </select>
+            </div>
+            <div class="col"><label>Subcategory *</label>
+              <select id="subCategory" class="gold-input-select"><option value="">Choose main first</option></select>
+            </div>
+           <input type="hidden" id="reg_level">
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+  <div><strong>Terms & Reference</strong></div>
+  <div>
+    <a id="termsLink"
+       href="#"
+       target="_blank"
+       rel="noopener noreferrer"
+       style="color:var(--accent);text-decoration:underline"
+       onclick="openTermsLink(event)">Open link</a>
+  </div>
+</div>
+
+<div style="margin-top:8px">
+  <label style="color:var(--muted)">
+    <input id="agreeTC" type="checkbox"> I have read & agree
+  </label>
+</div>
+
+          <div style="margin-top:12px;display:flex;justify-content:space-between">
+            <button class="btn ghost" id="backToBank">Back</button>
+                   <div id="paymentSection" class="hidden" style="margin-top:14px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)">
+  <h4 style="margin:0;color:var(--accent)">Membership Payment</h4>
+  <div class="small">Membership amount ₹1000 — Please scan & pay, then upload screenshot.</div>
+  <div style="margin-top:8px;text-align:center">
+    <img src="scan.jpg" alt="QR Scanner" style="width:200px;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.1)">
+  </div>
+  <div style="margin-top:8px">
+    <label>Upload Payment Screenshot *</label>
+    <input type="file" id="paymentProof" accept="image/*">
+  </div>
+</div>
+
+                       
+            <button class="btn" id="submitReg">Agree & Register</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- LOGIN -->
+    <div id="login" class="card hidden" style="margin-top:12px">
+      <h3>Login</h3>
+      <div class="muted">Enter username (email) and password.</div>
+      <div style="margin-top:12px">
+        <label>Username (email)</label>
+        <input id="loginEmail" type="email" placeholder="you@example.com">
+        <label>Password</label>
+        <input id="loginPassword" type="password">
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button id="loginBtn" class="btn">Login</button>
+          <button id="forgotBtn" class="btn ghost">Forgot password</button>
+        </div>
+        <div id="loginMsg" style="margin-top:10px;color:#ffb4a2"></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="card hidden" style="margin-top:12px">
+      <div class="wrap">
+<button id="toggleSidebar" class="btn ghost" style="display:none;position:fixed;top:10px;left:10px;z-index:2000">☰ Menu</button>
+
+        <aside class="sidebar">
+          <div style="display:flex;align-items:center;gap:12px">
+            <img src="logo.jpg" alt="Logo" style="height:48px;width:48px;border-radius:8px" onerror="this.style.display='none'">
+            <div>
+              <div id="welcomeUser" style="font-weight:800;color:var(--accent)">Welcome</div>
+              <div id="userRoleSmall" class="small"></div>
+            </div>
+          </div>
+
+          <div class="profile-box" style="margin-top:12px">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div id="avatar" class="avatar">IMG</div>
+              <div>
+                <div id="pname" style="font-weight:800"></div>
+                <div id="pid" class="small"></div>
+                <div id="pcat" class="small"></div>
+              </div>
+            </div>
+
+            <div style="margin-top:10px">
+              <label class="small">Upload profile photo</label>
+              <input type="file" id="profilePhoto" accept="image/*">
+            </div>
+          </div>
+
+          <div style="margin-top:12px" class="navcol">
+  <button data-tab="home" class="active" onclick="openTab('home', this)">🏠 Home <span id="notifBadge" style="float:right" class="badge hidden">0</span></button>
+  <button data-tab="attendance" onclick="openTab('attendance', this)">🕒 Attendance</button>
+  <button data-tab="staff" onclick="openTab('staff', this)">👥 Staff</button>
+  <button data-tab="tasks" onclick="openTab('tasks', this)">📋 Tasks</button>
+  <button data-tab="duties" onclick="openTab('duties', this)">🗂️ Duties</button>
+  <button data-tab="roadmap" onclick="openTab('roadmap', this)">🗺️ Roadmap</button>
+  <button data-tab="payments" onclick="openTab('payments', this)">💰 Payments</button>
+  <button data-tab="calendar" onclick="openTab('calendar', this)">📅 Calendar</button>
+  <button data-tab="leave" onclick="openTab('leave', this)">📄 Leave / Reports</button>
+  <button data-tab="voting" onclick="openTab('voting', this)">🗳️ Voting</button>
+  <button data-tab="logout" style="color:#ffb4a2" onclick="logout()">🚪 Logout</button>
+</div>
+
+<div style="position:absolute;top:12px;right:12px">
+  <button id="notifBell" class="btn ghost" style="position:relative">
+    🔔 <span id="notifCount" class="badge hidden" style="position:absolute;top:-4px;right:-4px">0</span>
+  </button>
+  <div id="notifDropdown" class="hidden" style="position:absolute;right:0;margin-top:4px;background:#001f3f;padding:8px;border-radius:8px;min-width:240px;z-index:1000;max-height:300px;overflow:auto">
+  </div>
+</div>
+
+        </aside>
+
+        <main class="main">
+          <h3 id="centerTitle">Welcome</h3>
+
+          <div id="tab-home">
+            <h4>Home</h4>
+            <div class="small">Post updates (demo)</div>
+            <div style="margin-top:8px">
+              <textarea id="postText" placeholder="Share update..." style="width:100%;"></textarea>
+              <div class="flex" style="margin-top:8px">
+                <input id="postFile" type="file" accept="video/*,image/*">
+                <button class="btn" id="postBtn">Post</button>
+              </div>
+              <div id="posts" style="margin-top:12px"></div>
+            </div>
+          </div>
+
+          <div id="tab-attendance" class="hidden">
+            <h4>Attendance</h4>
+            <div class="small">Clock In / Out and upload selfie</div>
+            <div style="margin-top:8px">
+              <div class="flex">
+                <button id="clockIn" class="btn">Clock In</button>
+                <button id="clockOut" class="btn ghost">Clock Out</button>
+              </div>
+              <div style="margin-top:8px">
+                <label>Upload selfie</label> <input type="file" id="selfie" accept="image/*">
+              </div>
+              <div id="attLog" style="margin-top:8px"></div>
+            </div>
+          </div>
+
+          <div id="tab-staff" class="hidden">
+            <h4>Staff</h4>
+            <div class="small">Staff list from your main category down to Group Leader</div>
+            <div style="margin-top:8px">
+              <label>Staff members</label>
+              <select id="staffList" style="min-width:220px;background:#fff;color:#000"></select>
+              <div class="small" style="margin-top:8px">Shows roles from your category down to Group Leader (if any).</div>
+            </div>
+          </div>
+
+        <div id="tab-tasks" class="hidden">
+  <h4>Tasks</h4>
+  <div style="display:flex;gap:12px;margin-top:8px">
+    <div style="flex:1">
+      <label>Title</label>
+      <input id="taskTitle">
+
+      <label>Description</label>
+      <textarea id="taskDesc"></textarea>
+
+      <label>Assign to</label>
+      <select id="assignTo" style="background:#fff;color:#000"></select>
+
+      <label>Priority</label>
+      <select id="priority">
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+      </select>
+
+      <label>Deadline</label>
+      <input id="deadline" type="date">
+
+      <label>Attachment</label>
+      <input id="taskAttach" type="file">
+
+      <!-- ❌ Removed Status (handled in My Tasks) -->
+
+      <div style="margin-top:8px">
+        <button class="btn" id="createTask">Create Task</button>
+      </div>
+    </div>
+
+    <div style="flex:1">
+      <h5>My Tasks</h5>
+      <div id="myTasks"></div>
+    </div>
+  </div>
+</div>
+
+
+          <div id="tab-duties" class="hidden">
+            <h4>Duties</h4>
+            <div id="dutiesBox" class="small muted">Loading duties link...</div>
+          </div>
+
+          <div id="tab-roadmap" class="hidden">
+            <h4>Roadmap</h4>
+            <div id="roadmapBox" class="small muted">Loading roadmap link...</div>
+          </div>
+
+          <div id="tab-payments" class="hidden">
+            <h4>Payments</h4>
+            <div id="paymentsBox" class="small muted">Loading payment details...</div>
+          </div>
+
+          <div id="tab-calendar" class="hidden">
+            <h4>Calendar</h4>
+            <div id="calendarControls" style="display:flex;justify-content:space-between;align-items:center">
+              <div><button class="btn ghost" id="prevMonth">◀</button> <span id="calMonthYear" class="small"></span> <button class="btn ghost" id="nextMonth">▶</button></div>
+              <div><button class="btn" id="addEventBtn">Add Event</button></div>
+            </div>
+            <div class="calendar" id="calendarGrid" style="margin-top:12px"></div>
+          </div>
+<div id="tab-leave" class="hidden">
+  <h4>Leave / Reports</h4>
+  <div class="small">Submit a message (e.g. “I am on leave today”)</div>
+  <textarea id="leaveMsg" placeholder="Enter your message..." style="width:100%;margin-top:8px"></textarea>
+  <div style="margin-top:8px"><button class="btn" id="submitLeave">Submit</button></div>
+  <div id="leaveHistory" style="margin-top:12px" class="small muted"></div>
+</div>
+
+
+          <div id="tab-voting" class="hidden">
+            <h4>Voting</h4>
+            <div id="votingBox" class="small muted">Voting area</div>
+            <div style="margin-top:10px" id="votingUI"></div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+
+   
+  </div>
+
+<script>
+if (window.innerWidth < 900) {
+  document.getElementById("toggleSidebar").style.display = "block";
+  const sidebar = document.querySelector(".sidebar");
+  document.getElementById("toggleSidebar").addEventListener("click", ()=>{
+    sidebar.classList.toggle("hidden");
+  });
+}
+
+/* ==========================
+   Configuration & Data
+   ========================== */
+// ✅ Open Terms & Conditions link (not roadmap)
+document.getElementById("termsLink").addEventListener("click", function (e) {
+  e.preventDefault();
+
+  const org = document.getElementById("reg_level").value.trim();
+  const main = document.getElementById("mainCategory").value.trim();
+  const sub = document.getElementById("subCategory").value.trim();
+
+  if (!main || !sub) {
+    alert("Please select both main and subcategory first.");
+    return;
+  }
+
+  // Normalize organization key
+  const orgKey = org.toLowerCase().includes("shiv") ? "Shivshakti" : "Gaarrkh";
+
+  // Fix capitalization for main key (Mini Cluster / Group Leader)
+  let mainKey = main;
+  if (main.toLowerCase() === "minicluster") mainKey = "Mini Cluster";
+  else if (main.toLowerCase() === "groupleader") mainKey = "Group Leader";
+  else mainKey = main.charAt(0).toUpperCase() + main.slice(1);
+
+  // ✅ Get Terms link from termsLinkMap (not roadmapData)
+  const link = termsLinkMap?.[orgKey]?.[mainKey]?.[sub];
+
+  if (link) {
+    window.open(link, "_blank");
+  } else {
+    console.warn("No Terms link found for:", orgKey, mainKey, sub);
+    alert("No Terms link available for this category.");
+  }
+});
+
+if(!localStorage.getItem('orgData')){
+  localStorage.setItem('orgData', JSON.stringify({
+    gaarrkh:{
+      central:{subs:["Chairman","Vice Chairman","Managing Director","Executive Director","Operations and CEO", "COO", "CFO", "CHRO", "СТО"," СМО", "ІT and Security Head", "Legal Advisor / Company Secretary", "Reception Manager", "Office Administrator"," Shift Supervisor", "Digital Reply Operator"," Office Boy/Girl", "Membership and Franchise Development Head",  "Grievance Redressal Officer"]},
+      state:{subs:["State Administrative Officer","State Projector Coordinator","Office Boy","Public Relation Officer", "Finance and Account Officer"]},
+      divisional:{subs:["Divisional Administrative Officer","Accountant Detective","Auditor","Office Boy"]},
+      zone:{subs:["Zone Administrative Officer","Branch Coordinator + Marketing Head", "Accounting + CSR Assistant","Zone IT Officer","Service Tracking Coordinator"," Office Boy"]},
+      cluster:{subs:["Cluster Administrative Officer","Lawyer","Finance and Operations Controller","Marketing Officer","Office Boy"]},
+      miniCluster:{subs:["Mini Cluster Head","HR Officer","Accountant","Office Boy"]},
+      groupLeader:{subs:["Group Leader","Group Leader Assistant"]},
+      worker:{subs:["Worker"]}
+    },
+    shivshakti:{
+      central:{subs:["Central President","Vice President","General Secretary","Organising Minister"," Head of Media and Communication", "Head of Culture and Events", "Head of Training and Skill Development", "Treasurer/Head of Finance", "Head of Justice and Grievance Redressal", "Head of Research and Policy Planning"]},
+      state:{subs:["Head of State Liaison and Awareness","State Security Coordinator", "State Justice Officer", "State Planning and Development Coordinator", "Receptionist", "State Leadership Representative"]},
+      divisional:{subs:["Divisional Public Relations Officer","Divisional Justice Officer","Divisional Security Coordinator"," Divisional Operations Manager", "Receptionist"]},
+      zone:{subs:["Zone Leadership Representative","Zone Justice Chief","Zone Security Coordinator", "Women's Planning Coordinator", "Receptionist"]},
+      cluster:{subs:["Cluster Public Representative","Cluster Justice Officer","Cluster Marketing Officer 1", "Cluster Marketing Officer 2", "Cluster Marketing Officer 3", "Receptionist"]},
+      miniCluster:{subs:["Village Coordinator Leader","Village Security Coordinator 1", "Village Security Coordinator 2"," Village Security Coordinator 3", "Village Security Coordinator 4"," Receptionist"]},
+      groupLeader:{subs:["Adhyaksh (President)","Sachiv (Secretary)","Khajindar"]},
+      sabhasad:{subs:["Sabhasad"]}
+    }
+  }));
+}
+/* ==========================
+   Populate Subcategories dynamically (fixed capitalization)
+   ========================== */
+const subCategorySelect = document.getElementById("subCategory");
+const mainCategorySelect = document.getElementById("mainCategory");
+const regLevelSelect = document.getElementById("reg_level");
+
+mainCategorySelect.addEventListener("change", function () {
+  const org = regLevelSelect.value.trim(); // e.g. Shivshakti or Gaarrkh
+  const main = this.value.trim(); // e.g. central, cluster, etc.
+  subCategorySelect.innerHTML = "<option value=''>Select sub</option>";
+
+  // Normalize organization key
+  const orgKey = org.toLowerCase().includes("shiv") ? "Shivshakti" : "Gaarrkh";
+
+  // Capitalize first letter of main category to match roadmapData keys
+  const mainKey = main.charAt(0).toUpperCase() + main.slice(1);
+
+  // Try roadmapData first
+  const subs = roadmapData[orgKey]?.[mainKey];
+  if (subs) {
+    Object.keys(subs).forEach((key) => {
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = key;
+      subCategorySelect.appendChild(opt);
+    });
+  } else {
+    // Fallback to paymentMap keys
+    const lowerMain = main.toLowerCase();
+    const pSubs = paymentMap[orgKey.toLowerCase()]?.[lowerMain];
+    if (pSubs) {
+      Object.keys(pSubs).forEach((key) => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = key;
+        subCategorySelect.appendChild(opt);
+      });
+    } else {
+      const opt = document.createElement("option");
+      opt.textContent = "No subcategories found";
+      opt.disabled = true;
+      subCategorySelect.appendChild(opt);
+    }
+  }
+});
+
+
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbxwOKV8qDzXmAOnZxqqYpbBgLxNRzYAL7OvuiMaOUkD1y7FgUzUL0WPuZf3lSwKl0NX/exec";
+const SHEET_ID = '1fbc1IlJ93dDL-0B30vzLaqnJgxmW_pWfRj5Crz7gmLA';
+const DRIVE_FOLDER_ID = '13xV6PAS1LC81BxfryTzyb2IwpHSZSFc1';
+/* ================================
+   TERMS & CONDITIONS LINKS
+   ================================ */
+const termsLinkMap = {
+  "Gaarrkh": {
+    "Central": {
+      "Chairman": "https://tinyurl.com/4f8xzckr",
+      "Vice Chairman": "https://shorturl.at/LPjG4",
+      "Managing Director": "https://sorts.one/eOd",
+      "Executive Director": "https://tinyurl.com/y446a3ye",
+      "Operations and CEO": "https://tinyurl.com/yc3pm54h",
+      "COO": "https://surl.lt/jxdavk",
+      "CFO": "https://tinyurl.com/msba323y",
+      "CHRO": "https://tinyurl.com/ynetfxxf",
+      "CTO": "https://tinyurl.com/yy5derdb",
+      "CMO": "https://tinyurl.com/mnxtz4kt",
+      "IT and Security Head": "https://tinyurl.com/5ekmepr6",
+      "Legal Advisor/Company Secretary": "https://tinyurl.com/733d3ae8",
+      "Reception Manager": "https://tinyurl.com/2ken257v",
+      "Office Administrator": "https://tinyurl.com/yk8ns2z3",
+      "Shift Supervisor": "https://surl.li/csztwk",
+      "Digital Reply Operator": "https://tinyurl.com/ycxe7mex",
+      "Office Boy/Girl": "https://bit.ly/4oCYi6q",
+      "Membership and Franchise Development Head": "https://sorts.one/eOe",
+      "Grievance Redressal Officer": "https://tinyurl.com/4rnx52ux"
+    },
+    "State": {
+      "State Administrative Officer": "https://bit.ly/47IwpnG",
+      "State Projector Coordinator": "https://bit.ly/4nmc5Nu",
+      "Office Boy": "https://bit.ly/3Jr5t2x",
+      "Public Relation Officer": "https://bit.ly/47aqKXy",
+      "Finance and Accounts Officer": "https://bit.ly/47Gs0Se"
+    },
+    "Divisional": {
+      "Divisional Administrative Officer": "https://bit.ly/47vOcNR",
+      "Accountant Detective": "https://bit.ly/3J3eP4F",
+      "Office Boy": "https://bit.ly/4hqQaDA",
+      "Auditor": "https://bit.ly/4qqE1Ti"
+    },
+    "Zone": {
+      "Zone Administrative Officer": "https://bit.ly/47q1Xh6",
+      "Branch Coordinator + Marketing Head": "https://bit.ly/3Jp7qfR",
+      "Accounting + CSR Assistant": "https://bit.ly/3Jp7qfR",
+      "Zone IT Officer": "https://bit.ly/3JhrFw8",
+      "Service Tracking Coordinator": "https://bit.ly/4qtzShi",
+      "Office Boy": "https://bit.ly/4nkCify"
+    },
+    "Cluster": {
+      "Cluster Administrative Officer": "https://tinyurl.com/mr45rzzr",
+      "Lawyer": "https://tinyurl.com/mr45rzzr",
+      "Finance and Operations Controller": "https://tinyurl.com/mr45rzzr",
+      "Marketing Officer": "https://tinyurl.com/mr45rzzr",
+      "Office Boy": "https://tinyurl.com/mr45rzzr"
+    },
+    "Mini Cluster": {
+      "Mini Cluster Head": "https://tinyurl.com/3paybvrh",
+      "HR Officer": "https://tinyurl.com/3paybvrh",
+      "Accountant": "https://tinyurl.com/3paybvrh",
+      "Office Boy": "https://tinyurl.com/3paybvrh"
+    },
+    "Group Leader": {
+      "Group Leader": "https://tinyurl.com/36xsuvce",
+      "Group Leader Assistant": "https://tinyurl.com/36xsuvce"
+    },
+    "Worker": {
+      "Worker": "https://bit.ly/4nty2un"
+    }
+  },
+
+  "Shivshakti": {
+    "Central": {
+      "Central President": "https://tinyurl.com/4rw2zdb8",
+      "Vice President": "https://tinyurl.com/4rw2zdb8",
+      "General Secretary": "https://tinyurl.com/4rw2zdb8",
+      "Organising Minister": "https://tinyurl.com/4rw2zdb8",
+      "Head of Media and Communication": "https://tinyurl.com/4rw2zdb8",
+      "Head of Culture and Events": "https://tinyurl.com/4rw2zdb8",
+      "Head of Training and Skill Development": "https://tinyurl.com/4rw2zdb8",
+      "Treasurer / Head of Finance": "https://tinyurl.com/4rw2zdb8",
+      "Head of Justice and Grievance Redressal": "https://tinyurl.com/4rw2zdb8",
+      "Head of Research and Policy Planning": "https://tinyurl.com/4rw2zdb8"
+    },
+    "State": {
+      "Head of State Liaison and Awareness": "https://tinyurl.com/yefet7t7",
+      "State Security Coordinator": "https://tinyurl.com/yefet7t7",
+      "State Justice Officer": "https://tinyurl.com/yefet7t7",
+      "State Planning and Development Coordinator": "https://tinyurl.com/yefet7t7",
+      "Receptionist": "https://tinyurl.com/yefet7t7",
+      "State Leadership Representative": "https://tinyurl.com/yefet7t7"
+    },
+    "Divisional": {
+      "Divisional Public Relations Officer": "https://shorturl.at/WfvYn",
+      "Divisional Justice Officer": "https://shorturl.at/WfvYn",
+      "Divisional Security Coordinator": "https://shorturl.at/WfvYn",
+      "Divisional Operations Manager": "https://shorturl.at/WfvYn",
+      "Receptionist": "https://shorturl.at/WfvYn"
+    },
+    "Zone": {
+      "Zone Leadership Representative": "https://tinyurl.com/vphfym6w",
+      "Zone Justice Chief": "https://tinyurl.com/vphfym6w",
+      "Zone Security Coordinator": "https://tinyurl.com/vphfym6w",
+      "Women's Planning Coordinator": "https://tinyurl.com/vphfym6w",
+      "Receptionist": "https://tinyurl.com/vphfym6w"
+    },
+    "Cluster": {
+      "Cluster Public Representative": "https://tinyurl.com/4fv8u6am",
+      "Cluster Justice Officer": "https://tinyurl.com/4fv8u6am",
+      "Cluster Marketing Officer 1": "https://tinyurl.com/4fv8u6am",
+      "Cluster Marketing Officer 2": "https://tinyurl.com/4fv8u6am",
+      "Cluster Marketing Officer 3": "https://tinyurl.com/4fv8u6am",
+      "Receptionist": "https://tinyurl.com/4fv8u6am"
+    },
+    "Mini Cluster": {
+      "Village Coordinator Leader": "https://tinyurl.com/2nsm4jr3",
+      "Village Security Coordinator 1": "https://tinyurl.com/2nsm4jr3",
+      "Village Security Coordinator 2": "https://tinyurl.com/2nsm4jr3",
+      "Village Security Coordinator 3": "https://tinyurl.com/2nsm4jr3",
+      "Village Security Coordinator 4": "https://tinyurl.com/2nsm4jr3",
+      "Receptionist": "https://tinyurl.com/2nsm4jr3"
+    },
+    "Group Leader": {
+      "Adhyaksh (President)": "https://tinyurl.com/mpzvuujs",
+      "Sachiv (Secretary)": "https://tinyurl.com/mpzvuujs",
+      "Khajindar (Treasurer)": "https://tinyurl.com/mpzvuujs"
+    }
+  }
+};
+ const dutiesData = {
+  "gaarrkh": {
+    "central": {
+      "Chairman": "https://docs.google.com/spreadsheets/d/1c7XKWRSiFjHIYtrMvkeugd4cy3Nz8QIvRENk2NLK-m0/edit?usp=drivesdk",
+      "Vice chairman": "https://docs.google.com/spreadsheets/d/1XVOryDUepyF6S-tbH1kb-QURKmVlcVtUYjqVEzhVLuI/edit?usp=drivesdk",
+      "Managing director": "https://docs.google.com/spreadsheets/d/10C6jrA3v9OMSIE-6IW8iKrDWCcFwWv6_uaz86HdIHFU/edit?usp=drivesdk",
+      "Executive director": "https://docs.google.com/spreadsheets/d/13qQIs-fe5nSJMJdSuidP6haiP5ItHHrG5fIjb94VnxM/edit?usp=drivesdk",
+      "Operations and CEO": "https://docs.google.com/spreadsheets/d/1B0xLvAhr8SzK13KtSvfoWQs_5-s1IH88DNz6jnhOoxo/edit?usp=drivesdk",
+      "COO": "https://docs.google.com/spreadsheets/d/19FVq0BvaIsD-CdY3Rtn7lDsHvMCVVPaHdxg70QEQgno/edit?usp=drivesdk",
+      "CFO": "https://docs.google.com/spreadsheets/d/16rULTLPNgf7Bx2QLxEz497dBSpIR1kLvyW5ZWFtmK0k/edit?usp=drivesdk",
+      "CHRO": "https://docs.google.com/spreadsheets/d/14aqGzaAoilWVBbUE9K4d0LMcvkBpluPzdNIHiOZooCM/edit?usp=drivesdk",
+      "CTO": "https://docs.google.com/spreadsheets/d/1KX--Vsg0FhQh4F6QR0nkOX53z5Xg4cZrxCKRMpL31pw/edit?usp=drivesdk",
+      "CMO": "https://docs.google.com/spreadsheets/d/1GrRjWpYCKjrBGtVGrOP_yLptG0GrRChhsC0N02mNQJg/edit?usp=drivesdk",
+      "IT and Security Head": "https://docs.google.com/spreadsheets/d/1u_BcthM9Q-2w6en8X-JosPXd1KeItCCuXJWuEzarDAs/edit?usp=drivesdk",
+      "Legal Advisor/Company Secretary": "https://docs.google.com/spreadsheets/d/1rDRGewWfAaJQGBtGz4pOUwHbRqwQh_-Eyc6dpYHsdAQ/edit?usp=drivesdk",
+      "Reception Manager": "https://docs.google.com/spreadsheets/d/1Xj1mziPuFPbJnoqwu9q_vVAcB9yYvBrOFFSSnFhLH3w/edit?usp=drivesdk",
+      "Office Administrator": "https://docs.google.com/spreadsheets/d/1s2p4UKeU1Ewh8rEUpE-4X03y8m6kRD1ncdJF2qH2Bb0/edit?usp=drivesdk",
+      "Shift Supervisor": "https://docs.google.com/spreadsheets/d/1DlFZJJsGZzb16x9jWZHKrrXx2FTbrOE_RK9c4sxbH1o/edit?usp=drivesdk",
+      "Digital reply operator": "https://docs.google.com/spreadsheets/d/13FYEpLyP41F7A-O3eGDEDA9aDOFBNoX5drPjKcp3ADg/edit?usp=drivesdk",
+      "Office Boy/Girl": "https://docs.google.com/spreadsheets/d/1DlFZJJsGZzb16x9jWZHKrrXx2FTbrOE_RK9c4sxbH1o/edit?usp=drivesdk",
+      "Membership and Franchise Development Head": "https://docs.google.com/spreadsheets/d/1nlZ9KpRV3dcIpkP-r69bwVB2newlupiBLFOF4wa3KGE/edit?usp=drivesdk",
+      "Grievance Redressal Officer": "https://docs.google.com/spreadsheets/d/1TgfrGbToIS1K0rJehHifDJVyrlfaNc_aG66zjUzsuO8/edit?usp=drivesdk"
+    },
+    "state": {
+      "State Administrative Officer": "https://docs.google.com/spreadsheets/d/14PlVzUtXW4Kxh8hqR27TMdM15_PJ2_oVn_UMtR80zXc/edit?usp=drivesdk",
+      "State Projector Coordinator": "https://docs.google.com/spreadsheets/d/1a2ARDIiH1sqX6pWcZm9Dcn4nGu-fmCIebCghXbI7CpA/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1cIWZ4lnl3GSLTnYdSYjV7VerbD4lT9fHmuNkgnaAclU/edit?usp=drivesdk",
+      "Public Relation Officer": "https://docs.google.com/spreadsheets/d/1IARUvBaccg3ZSp36HBqS04nu6AHlWadVrrBWfVp1ceg/edit?usp=drivesdk",
+      "Finance and Account Officer": "https://docs.google.com/spreadsheets/d/1h0magHYNaVxr773QauoLNfvosHMiw9zuDnLllyNGO34/edit?usp=drivesdk"
+    },
+    "divisional": {
+      "Divisional Administrative Officer": "https://docs.google.com/spreadsheets/d/1T9C6j-iFAzXAkKGSiEsolsePgcPNlDOYibK3mZOaY24/edit?usp=drivesdk",
+      "Accountant": "https://docs.google.com/spreadsheets/d/1Lgvh7vjbbegGqSD85RYrVlkZZiYn32yvFN830TmOogE/edit?usp=drivesdk",
+      "Detective": "https://docs.google.com/spreadsheets/d/10r6tQsA3t2lG86JzBMT-9WLxhbX3BBaT7GlrPCbFiBY/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1zIA2aeFcFiQVM4CkuOvYUAZFcMDmPyO6QDq4yA1AQjo/edit?usp=drivesdk",
+      "Auditor": "https://docs.google.com/spreadsheets/d/1gngW757B2iA1njRdlET7JdAWV2pJMKHwCTWvGaDsI8E/edit?usp=drivesdk"
+    },
+    "zone": {
+      "Zone Administrative Officer": "https://docs.google.com/spreadsheets/d/1RIZOUT6nS8LRG6g-mhSy8HrDJAPBNICFIS8UvZCLevI/edit?usp=drivesdk",
+      "Branch Coordinator + Marketing Head": "https://docs.google.com/spreadsheets/d/1SoUuJEY-bZkEURfAnMgtDK7Ywwsm3Ir97gHXa-EDe4A/edit?usp=drivesdk",
+      "Accounting + CSR Assistant": "https://docs.google.com/spreadsheets/d/1SUyIQsXCigiLHmSsCr14y7PPJbr932EYTxG5Qcx2eFI/edit?usp=drivesdk",
+      "Zone IT Officer": "https://docs.google.com/spreadsheets/d/1JJwdH0GazZx527AtLdLHHtwoCZ_A2-a360cbqryrQaI/edit?usp=drivesdk",
+      "Service Tracking Coordinator": "https://docs.google.com/spreadsheets/d/1R_olMWTTJbIL7YY_OXuOI8nI8XfPdanYwWU_YI9Yerc/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1R_olMWTTJbIL7YY_OXuOI8nI8XfPdanYwWU_YI9Yerc/edit?usp=drivesdk"
+    },
+    "cluster": {
+      "Cluster Administrative Officer": "https://docs.google.com/spreadsheets/d/1WZCuQgBxtpW9Tvltul_vPSn4S-HCIkDtzZfZATeY8E8/edit?usp=drivesdk",
+      "Lawyer": "https://docs.google.com/spreadsheets/d/1Dbg254p1sVOLFdQasaU8gfQ4yO1Z2DQum7hXQ4X6uMg/edit?usp=drivesdk",
+      "Finance and Operations Controller": "https://docs.google.com/spreadsheets/d/1W3FgEVAgSQARVWTqCItdetthO3X0Uxpk1p2mGOxxoaY/edit?usp=drivesdk",
+      "Marketing Officer": "https://docs.google.com/spreadsheets/d/1XK3dSPhoMhvUe5NZUhwdVuMxdzTotXJ2-3FW_AFGgMg/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1hVBTzZRcB_W6EysPeWvRFgeUga9lAR8EpBbwwqeVEc4/edit?usp=drivesdk"
+    },
+    "miniCluster": {
+      "Mini Cluster Head": "https://docs.google.com/spreadsheets/d/1wkudtUWZlCgp5OghlwA4FOKx1qM3rjacOrzTTfMUPlU/edit?usp=drivesdk",
+      "HR Officer": "https://docs.google.com/spreadsheets/d/1vWYPUdwsut8Mn6OsYUMPs-kqWeFjQgMMOHZGeMEs0eM/edit?usp=drivesdk",
+      "Accountant": "https://docs.google.com/spreadsheets/d/1z1QsRqTXRAU1GgF7WxNV_DY-vZM1Xrc7n8EXCJAijJg/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1hnUwd6AziMrpK9muPiQc9DDmBopNHc9PwHoD671U3M/edit?usp=drivesdk"
+    },
+    "groupLeader": {
+      "Group Leader": "https://docs.google.com/spreadsheets/d/1vR18pEmX7uJrkVE250mxVELdsFYICu6gyuKOvC4Yubw/edit?usp=drivesdk",
+      "Group Leader Assistant": "https://docs.google.com/spreadsheets/d/1vR18pEmX7uJrkVE250mxVELdsFYICu6gyuKOvC4Yubw/edit?usp=drivesdk"
+
+    }
+  },
+
+  "shivshakti": {
+    "central": {
+       "Central President": "https://docs.google.com/spreadsheets/d/1PnkkjaAN5HBuHFtC4KcSrvvixoak3OcdzS3wBkRb0qM/edit?usp=drivesdk",
+      "Vice President": "https://docs.google.com/spreadsheets/d/1PnkkjaAN5HBuHFtC4KcSrvvixoak3OcdzS3wBkRb0qM/edit?usp=drivesdk",
+      "General Secretary":"https://docs.google.com/spreadsheets/d/1jKXWEq0opxIX5qakAsOwZxnJ_BQlXAvkB1JqZ-6ZHsQ/edit?usp=drivesdk",
+      "Organising Minister": "https://docs.google.com/spreadsheets/d/1vdkr0j6Y73tJIQEhhmHAWawcJiUULf0l4kl5fW2uEq0/edit?usp=drivesdk",
+      "Head of Media and Communication":"https://docs.google.com/spreadsheets/d/1FwrqSdu0tTqk0GSm9gjFAWM8pchuZy0kL_kpupwV0GU/edit?usp=drivesdk",
+      "Head of Culture and Events": "https://docs.google.com/spreadsheets/d/1OKe6Vs4DU_pSp3TD_gJ4HfWLiI6c_JHMnVLC01pkEkM/edit?usp=drivesdk",
+      "Head of Training and Skill Development": "https://docs.google.com/spreadsheets/d/1K5uFUWkuNZeDYHDlk_WB0ABnGp1ODofETbghqkVeXhU/edit?usp=drivesdk",
+      "Treasurer / Head of Finance":"https://docs.google.com/spreadsheets/d/1lkzTsudBD41EESkssokhl4CX0s3P7F364eL-PThuvJ8/edit?usp=drivesdk",
+      "Head of Justice and Grievance Redressal": "https://docs.google.com/spreadsheets/d/1-_xNHTea6_bx3nbbvht9y7e4LT1YnX54xPqTusb-gN8/edit?usp=drivesdk",
+      "Head of Research and Policy Planning": "https://docs.google.com/spreadsheets/d/1WawUMVI7Rl6hKrLAqX7g5_DzyyXCiWABddp5k9m134I/edit?usp=drivesdk"
+
+    },
+    "state": {
+         "Head of State Liaison and Awareness": "https://docs.google.com/spreadsheets/d/1FwrqSdu0tTqk0GSm9gjFAWM8pchuZy0kL_kpupwV0GU/edit?usp=drivesdk",
+      "State Security Coordinator":"https://docs.google.com/spreadsheets/d/1YvgLwodW5X8CBcaLProeqXolOFzbGD9z4QdTWpeTOFI/edit?usp=drivesdk",
+      "State Justice Officer": "https://docs.google.com/spreadsheets/d/1SIfHAjbSh3iQ-zl2MDASHl-r2JyW7pQ-RxtlYT-Bnz4/edit?usp=drivesdk",
+      "State Planning and Development Coordinator": "https://docs.google.com/spreadsheets/d/1o4Zy8Iw1nrH1P8Ab5poyArXaIYq5N-DsjGZciBWuK5k/edit?usp=drivesdk",
+      "State Receptionist": "https://docs.google.com/spreadsheets/d/1ODG9IkgOxGTNFSaOHlIpxySMW3CxdYYdIfzPq9ugOBw/edit?usp=drivesdk",
+      "State Leadership Representative": "https://docs.google.com/spreadsheets/d/1vUErpaVCJ3zRNxIykevO07v9SCBIAXrEjZPBKB0fNoA/edit?usp=drivesdk"
+      
+    },
+    "divisional": {
+      "Divisional Public Relations Officer":"https://docs.google.com/spreadsheets/d/1sU2d2UMVGLTQIDpH9RxdUDI_JZqSaK8Ve520JfU3wCY/edit?usp=drivesdk",
+      "Divisional Justice Officer": "https://docs.google.com/spreadsheets/d/1drVN5LTov2F-HtmO8fnwxs_YWML1Wesk84qkKkemzqA/edit?usp=drivesdk",
+      "Divisional Security Coordinator":"https://docs.google.com/spreadsheets/d/1HDow2uGeNDM5aPeFLL49uUvM9_wcigtfjT_v-O82Sh8/edit?usp=drivesdk", 
+      "Divisional Operations Manager": "https://docs.google.com/spreadsheets/d/1PClkDgbM9X-IeAAj6QzBCXadAbCc2r8t5RJ7rxze82k/edit?usp=drivesdk",
+      "Divisional Receptionist":"https://docs.google.com/spreadsheets/d/1Ud_4weMPOUgMj3ajhy1OhUlW0HfVDCRCx7U-402BtCQ/edit?usp=drivesdk"
+
+      
+    },
+    "zone": {
+        "Zone Leadership Representative": "https://docs.google.com/spreadsheets/d/1rc8t3NRUzPrMkPLf6nrtik5VdOOTbhw9aGTJphEeul4/edit?usp=drivesdk",
+      "Zone Justice Chief": "https://docs.google.com/spreadsheets/d/1klm26AD5Div5W2dNdOsavCvk_A6mRSuecmqCHr3dz_Q/edit?usp=drivesdk",
+      "Zone Security Coordinator":"https://docs.google.com/spreadsheets/d/1-5A5BBbLH-_rVse8InThBbKKX3QAmqMKu6_gusaBQrs/edit?usp=drivesdk", 
+      "Women’s Planning Coordinator":"https://docs.google.com/spreadsheets/d/1-5A5BBbLH-_rVse8InThBbKKX3QAmqMKu6_gusaBQrs/edit?usp=drivesdk", 
+      "Zone Receptionist":"https://docs.google.com/spreadsheets/d/12c8CcSp7REkrXI5nOnTaF3nFJiXu-h-xAju5UspdX6E/edit?usp=drivesdk"
+
+    
+    },
+    "cluster": {
+       "Cluster Public Representative": "https://docs.google.com/spreadsheets/d/1I0wkdeqtqbiV0LD8mxpXHyoENJXSkj6z_KejxYP8ptE/edit?usp=drivesdk",
+      "Cluster Justice Officer": "https://docs.google.com/spreadsheets/d/1I0wkdeqtqbiV0LD8mxpXHyoENJXSkj6z_KejxYP8ptE/edit?usp=drivesdk",
+      "Cluster Marketing Officer 1":"https://docs.google.com/spreadsheets/d/1CmwCWvAXu3cWilTIpIeWvnZux-mHtB4qAsQs6HbGw3I/edit?usp=drivesdk",
+      "Cluster Marketing Officer 2": "https://docs.google.com/spreadsheets/d/1F8p7-Wq0bWki7OtZgDzW75MA1MT0BR5HSZLf-um4h1U/edit?usp=drivesdk",
+      "Cluster Marketing Officer 3": "https://docs.google.com/spreadsheets/d/1mK8eZCs8mn9jFi8Wj6mzFDlpwz0XoZgk9zAqEFXHgak/edit?usp=drivesdk",
+      "Cluster Receptionist": "https://docs.google.com/spreadsheets/d/1mK8eZCs8mn9jFi8Wj6mzFDlpwz0XoZgk9zAqEFXHgak/edit?usp=drivesdk"
+
+     
+    },
+    "miniCluster": {
+       "Village Coordinator Leader":"https://docs.google.com/spreadsheets/d/1Af_AsbM3Nbw2d7cNGRYgJEAq4nKr-VOz6YsWPx199Kk/edit?usp=drivesdk",
+      "Village Security Coordinator 1":"https://docs.google.com/spreadsheets/d/1N75_tKRbGtmU16j3i1HA3l6mg3aXjr2sjFpMbL4ocWc/edit?usp=drivesdk", 
+      "Village Security Coordinator 2": "https://docs.google.com/spreadsheets/d/1esbfM-gLrp8ZcJdHf5O3fT-sWuPaWBE18-esN-XnBUo/edit?usp=drivesdk",
+      "Village Security Coordinator 3":"https://docs.google.com/spreadsheets/d/1cQ4M9XwWrF3uXSiBr_T4G1VVcNb6sJQQjqpTNY1_YI8/edit?usp=drivesdk",
+      "Village Security Coordinator 4": "https://docs.google.com/spreadsheets/d/1MuvT6VAosrVOHKS3oWQYCN_jIBvX8PIo9WxWxpVjoME/edit?usp=drivesdk",
+      "Mini Cluster Receptionist": "https://docs.google.com/spreadsheets/d/1WCgs9sYnrYTqIN6DEKjYYGZGR9S1wkQl8c_IwzTdSro/edit?usp=drivesdk"
+    },
+    "groupLeader": {
+       "Adhyaksh": "https://docs.google.com/spreadsheets/d/1DEdKyuzxT4241uos_G1Ion8VMk6HLJ08f2dt1I_5oXU/edit?usp=drivesdk",
+      "Sachiv":"https://docs.google.com/spreadsheets/d/1TucORizTb79a4oKnAsB2kAxt1RseM69yngFq3iomqE/edit?usp=drivesdk",
+      "Khajindar": "https://docs.google.com/spreadsheets/d/1kvhUf6Ssh94XZf2203je3HeUWUNReDip0lTPg11SR7I/edit?usp=drivesdk"
+    
+
+    }
+  }
+};
+
+
+/* ================================
+   ROADMAP DATA (Gaarrkh + Shivshakti)
+   ================================ */
+const roadmapData = {
+  "Gaarrkh": {
+    "Central": {
+      "Chairman": "https://docs.google.com/spreadsheets/d/1PYMgelarroRP2b2e-d1fNFh1svb_eOnq-ZYn9CJeju0/edit?usp=drivesdk",
+      "Vice Chairman": "https://docs.google.com/spreadsheets/d/1i-LE134EKTcXNsi0uoXb9kt782lDXyQAo5Qg--3sfK0/edit?usp=drivesdk",
+      "Managing Director": "https://docs.google.com/spreadsheets/d/1jVgohg7YVoMCsaoCjzklVFdMYgBId8I-njZpET4OPjY/edit?usp=drivesdk",
+      "Executive Director": "https://docs.google.com/spreadsheets/d/14hpHTitMvT_MpRbN5m9UgCZcI3YxK6m6q6NffQqZJfk/edit?usp=drivesdk",
+      "Operations and CEO": "https://docs.google.com/spreadsheets/d/1xhg1am4BAsdPNH0Hc4OrdTmFZisZYX6X42YHmFj4H2g/edit?usp=drivesdk",
+      "COO": "https://docs.google.com/spreadsheets/d/18tCc9UYplSRdQQoaFhki3flFb5K7PwNZkkG5dKpfoDA/edit?usp=drivesdk",
+      "CFO": "https://docs.google.com/spreadsheets/d/19-1FBbpS3JK-RWLj0qVCDIf4eQoaB9kzT7vz4Qq7Luw/edit?usp=drivesdk",
+      "CHRO": "https://docs.google.com/spreadsheets/d/13lnpZilqXtihuFipLB9bwbGSetqf_9KNwmyuwUB_HpY/edit?usp=drivesdk",
+      "CTO": "https://docs.google.com/spreadsheets/d/1VGwm9Inhml5PzzdsSlUrNca6-LqUO12K5g3hzcBuJCc/edit?usp=drivesdk",
+      "CMO": "https://docs.google.com/spreadsheets/d/1gGEpekydLAiR3sPm7gST2cKowMHCRy_lU3mXcicWkQA/edit?usp=drivesdk",
+      "IT and Security Head": "https://docs.google.com/spreadsheets/d/1F5KUIINcQB6sJDLB089ixeZvO5aprK_7G1L0rAtzbSs/edit?usp=drivesdk",
+      "Legal Advisor/Company Secretary": "https://docs.google.com/spreadsheets/d/1CpXroRx1JADKBndIIyScOthCynvnpszYrH1gA90Q1Vs/edit?usp=drivesdk",
+      "Reception Manager": "https://docs.google.com/spreadsheets/d/1fhyiycP-HodQ_HlkIJLVwmmixO61BZcuo7eFdt1xKl8/edit?usp=drivesdk",
+      "Office Administrator": "https://docs.google.com/spreadsheets/d/12s6GD_X71_UW03Jst3yRT7IyucIDPwPu9_VrwJacY3I/edit?usp=drivesdk",
+      "Shift Supervisor": "https://docs.google.com/spreadsheets/d/19D7X5CkhqfDOBKUjrXL9UD4bw9ox-WqBdNhGAWWdQqM/edit?usp=drivesdk",
+      "Digital Reply Operator": "https://docs.google.com/spreadsheets/d/1gma8MRMNmGUaFB6FnS-4vJxQX7MB3lU58NhePKIJfgA/edit?usp=drivesdk",
+      "Office Boy/Girl": "https://docs.google.com/spreadsheets/d/1Uh7QYuoMtv_w51IU0thTArZKujaywQ7vfMd8mxDbkuw/edit?usp=drivesdk",
+      "Membership and Franchise Development Head": "https://docs.google.com/spreadsheets/d/1doQ-8x-EIu0UichpNDqZ40cpEz8svXbnuLmhG7-2lLk/edit?usp=drivesdk",
+      "Grievance Redressal Officer": "https://docs.google.com/spreadsheets/d/1Pkx1auObQ8nReUT7Q_jZkufD2LDM0fTbWHGVI-0EFK8/edit?usp=drivesdk"
+    },
+    "State": {
+      "State Administrative Officer": "https://docs.google.com/spreadsheets/d/1KlzhVScSjmVAhZYYzX0PDCmQR9RDRq_sgg-yS6Is1E8/edit?usp=drivesdk",
+      "State Projector Coordinator": "https://docs.google.com/spreadsheets/d/15kWL525lYBfj107SRx06-WsGl_pFqE_RsSS-i7dEn0E/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1xXymU8xeT1l6LFIA5YTxz_tnZFjU0voHrqjWoxh1fWo/edit?usp=drivesdk",
+      "Public Relation Officer": "https://docs.google.com/spreadsheets/d/1l4GknRB_7URlK7gdi0N_ORym-EiW2TwX4oRyp-2UWd0/edit?usp=drivesdk",
+      "Finance and Account Officer": "https://docs.google.com/spreadsheets/d/15bdy-Nv0CEiMEiH0TcEc7Ggy-SQMLicRHx-bKXpKo9Y/edit?usp=drivesdk"
+    },
+    "Divisional": {
+      "Divisional Administrative Officer": "https://docs.google.com/spreadsheets/d/1S6fP_8WkbBxm2f8X0Vf6MHE7C6_WlIIKhdnkpVHJtZQ/edit?usp=drivesdk",
+      "Accountant": "https://docs.google.com/spreadsheets/d/1b_tckVftW66oWNAdXN-VWa63T1xKaEqFjhxzq2TgdhM/edit?usp=drivesdk",
+      "Detective": "https://docs.google.com/spreadsheets/d/19m5h13H0fVZOxnd_C8k6SP7580WBwKQX2cHIDz7Qoqc/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1-ZtPAE0UWEe8ttfJ7an1gdAn7gh9Nk3gKQvLt-UXMSE/edit?usp=drivesdk",
+      "Auditor": "https://docs.google.com/spreadsheets/d/1CvS_HmZdwBfcOmAr8KKXktm8hH5SmKickmqMBlTCoQ0/edit?usp=drivesdk"
+    },
+    "Zone": {
+      "Zone Administrative Officer": "https://docs.google.com/spreadsheets/d/1MUzopHXIv29md-7wIQuvjEG0mcYIYYvYY1kPlLDMHhU/edit?usp=drivesdk",
+      "Branch Coordinator + Marketing Head": "https://docs.google.com/spreadsheets/d/1UacUuax52awNWRPUMt0TSjr2J3UEjxQb6gR8dO7dtLA/edit?usp=drivesdk",
+      "Accounting + CSR Assistant": "https://docs.google.com/spreadsheets/d/1ljSmxChaI7XJe7x58-imNyflWBP5PWZ3p2GmaMSFy5U/edit?usp=drivesdk",
+      "Zone IT Officer": "https://docs.google.com/spreadsheets/d/152aw7eqiWz-W6jWxUoSquCTXUHIRJCk4Pv6srWqelvA/edit?usp=drivesdk",
+      "Service Tracking Coordinator": "https://docs.google.com/spreadsheets/d/1Qjfxjl6f2Z5PO54Ep1E6YuXNP5jQu3BvwRqo9GJRQvA/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1yOkXCYmHStVeFWz5zhDwbo4uruiespolJEpFHDSAXQA/edit?usp=drivesdk"
+    },
+    "Cluster": {
+      "Cluster Administrative Officer": "https://docs.google.com/spreadsheets/d/1_vrPNT8AQLiW1QwzMsQ-2jcN-ShTvpl899hng2yYJU0/edit?usp=drivesdk",
+      "Lawyer": "https://docs.google.com/spreadsheets/d/19R9TtvoqL4usOx1Vew92Zr4mM46fjTCf7IxMIZ-offE/edit?usp=drivesdk",
+      "Finance and Operations Controller": "https://docs.google.com/spreadsheets/d/1OYL7LikqbyhAi1xTO3dazUEZZA8QbtIFdNkRsRGrCz4/edit?usp=drivesdk",
+      "Marketing Officer": "https://docs.google.com/spreadsheets/d/1JGUerKXaxcA9y8O8X0UZ5csjz40m-cSjzbmd9xjOXzQ/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1zwREo7bdsY5FHUpEmGe5Ys-14nzCv840kKvY9f_7Izo/edit?usp=drivesdk"
+    },
+    "miniCluster": {
+      "Mini Cluster Head": "https://docs.google.com/spreadsheets/d/1JuAwShLr6L3FOxpolsgcob5pNPNGNXOUZ70fUZcNNtg/edit?usp=drivesdk",
+      "HR Officer": "https://docs.google.com/spreadsheets/d/1TRglsewMY9R2Zw5iQMBSv5e2JT0abJ8u1S68DsPrHDQ/edit?usp=drivesdk",
+      "Accountant": "https://docs.google.com/spreadsheets/d/1aljxozxUl8qCQPiIQwxZfZJ2dZC0q9OFzexXtzY4tBU/edit?usp=drivesdk",
+      "Office Boy": "https://docs.google.com/spreadsheets/d/1RZRrk6pBk3Ht8_lBDZkRCvCdBkv5C9zXr094uCD81c8/edit?usp=drivesdk"
+    },
+    "groupLeader": {
+      "Group Leader": "https://docs.google.com/spreadsheets/d/1tWzjuKhBJvtwH502yZmKMHQPt-AOB9PuZOdvSfRDELU/edit?usp=drivesdk",
+      "Group Leader Assistant": "https://docs.google.com/spreadsheets/d/1RjyToKNhvLDlZp34hDYze3yRXoHz27RW2G_WmtvputM/edit?usp=drivesdk"
+    }
+  },
+
+  "Shivshakti": {
+    "Central": {
+      "Central President": "https://docs.google.com/spreadsheets/d/1GhB-BSZDJeU0n-3osbVkjMaovPJB2VOB-tSCraiV0iU/edit?usp=drivesdk",
+      "Vice President": "https://docs.google.com/spreadsheets/d/1UP9lEQZf4stnQ1U-ILrYKrBytFwlvqFTCuyZK_EZA_8/edit?usp=drivesdk",
+      "General Secretary": "https://docs.google.com/spreadsheets/d/1QzDLEZGq-ZATpSMlGzuAL-tXdB3gZjcC0y-Vk8fuHBI/edit?usp=drivesdk",
+      "Organising Minister": "https://docs.google.com/spreadsheets/d/11nR4bKhJABeH_QHYgwvfo3jq2sdDyVxGAvwGMpwo5cM/edit?usp=drivesdk",
+      "Head of Media and Communication": "https://docs.google.com/spreadsheets/d/1FwrqSdu0tTqk0GSm9gjFAWM8pchuZy0kL_kpupwV0GU/edit?usp=drivesdk",
+      "Head of Culture and Events": "https://docs.google.com/spreadsheets/d/1binhtqsGHmCqKxpxZH47CGfQisQwEpMydvjZBQFWV64/edit?usp=drivesdk",
+      "Head of Training and Skill Development": "https://docs.google.com/spreadsheets/d/1gL0bjEzOrOlNPsHcx9_jcpfBi38g5XpTZ1Go2NJaXzA/edit?usp=drivesdk",
+      "Treasurer / Head of Finance": "https://docs.google.com/spreadsheets/d/1U4k31uIIL2MVg4MHpZQdp0A4ZDVSzmZ2KdKD864tWpc/edit?usp=drivesdk",
+      "Head of Justice and Grievance Redressal": "https://docs.google.com/spreadsheets/d/1lEFUBFOKQrsBdifIJQ_hl1xjSfM7osC3Bc2Oa1RfHv4/edit?usp=drivesdk",
+      "Head of Research and Policy Planning": "https://docs.google.com/spreadsheets/d/1THqo_X-Oun6Tv7CIDH80scnH4l0PkxQdaC5VkgwJ_z4/edit?usp=drivesdk"
+    },
+    "State": {
+      "Head of State Liaison and Awareness": "https://docs.google.com/spreadsheets/d/1FwrqSdu0tTqk0GSm9gjFAWM8pchuZy0kL_kpupwV0GU/edit?usp=drivesdk",
+      "State Security Coordinator": "https://docs.google.com/spreadsheets/d/1fLE-0H8XBVbD1xSegNzRZglCVG5kEjSp7LoxMtZDa2s/edit?usp=drivesdk",
+      "State Justice Officer": "https://docs.google.com/spreadsheets/d/1StNpuf7xG0b7wignE0nok5h-3mFZzTX8Yf963TVvZVc/edit?usp=drivesdk",
+      "State Planning and Development Coordinator": "https://docs.google.com/spreadsheets/d/16IH2I0a7rn8vZW0A8TLLWZksauVm3T77W4YzRg_MNMc/edit?usp=drivesdk",
+      "State Receptionist": "https://docs.google.com/spreadsheets/d/1gM9wgM3dzssNQ_tu4tKOaXgxubcuq_3PxCaRf3LTk9I/edit?usp=drivesdk",
+      "State Leadership Representative": "https://docs.google.com/spreadsheets/d/1q0eAdk9Eq7kdHQ2LEKvEuib2jrdGrwrlzM8PeXTj3Aw/edit?usp=drivesdk"
+    },
+    "Divisional": {
+      "Divisional Public Relations Officer": "https://docs.google.com/spreadsheets/d/17a1McrysX7pb9XmmRKQo5QcmGMRkgyPu-kzlKhs7jsQ/edit?usp=drivesdk",
+      "Divisional Justice Officer": "https://docs.google.com/spreadsheets/d/1paK94f9-YyDrgr70OCRYE2wG3Qj2O_kHCKrgc25dPlo/edit?usp=drivesdk",
+      "Divisional Security Coordinator": "https://docs.google.com/spreadsheets/d/1jIUQj6QyGybgdogtp6bImSzFtB8dBbB_A0DzQxdfDqU/edit?usp=drivesdk",
+      "Divisional Operations Manager": "https://docs.google.com/spreadsheets/d/1aOrHo-cJOT_cSPcuo7Jq2VYEPQqzopyGCdzZs4hzMMo/edit?usp=drivesdk",
+      "Divisional Receptionist": "https://docs.google.com/spreadsheets/d/1ljldZyMf9pBDPW5wWATe9iXAc_f5qD3PzyJ19RdoSEE/edit?usp=drivesdk"
+    },
+"Zone": {
+      "Zone Leadership Representative": "https://docs.google.com/spreadsheets/d/1sAnI1-9xyI-INhlhBOzfTZtIZ9g8UNyUwsp3jT2dkNw/edit?usp=drivesdk",
+      "Zone Justice Chief": "https://docs.google.com/spreadsheets/d/1FMnwq1proIMoDnsFLUAK001uoIOoINIZtArXnrGB6Wo/edit?usp=drivesdk",
+      "Zone Security Coordinator": "https://docs.google.com/spreadsheets/d/1Dj7mGpJRIVv6higIzLBs1RoYL_9qMDHv8deinxvGw4U/edit?usp=drivesdk",
+      "Women’s Planning Coordinator": "https://docs.google.com/spreadsheets/d/1vO3w9X5RGazl5U1Zd4sdaEgXMxAH3FQut-9nQ6qBVP0/edit?usp=drivesdk",
+      "Zone Receptionist": "https://docs.google.com/spreadsheets/d/1y_yyZ70TBP_2l-4Fp2UXyRYB4Cpr4zTkIS1F5SPvGi0/edit?usp=drivesdk"
+    },
+    "Cluster": {
+      "Cluster Public Representative": "https://docs.google.com/spreadsheets/d/168TyfpOuGoMkrh7Azusc6L_V6LqW-eskcYXNh0C7Yk8/edit?usp=drivesdk",
+      "Cluster Justice Officer": "https://docs.google.com/spreadsheets/d/1VLcoC_MB1mTLCmEM0dBL2fWYlM1vyiQzYDruxhj6X2M/edit?usp=drivesdk",
+      "Cluster Marketing Officer 1": "https://docs.google.com/spreadsheets/d/1LhmuILIiNBFTMm4n43IMdYdMpv9gdXC5KSluSIGrE5U/edit?usp=drivesdk",
+      "Cluster Marketing Officer 2": "https://docs.google.com/spreadsheets/d/1WGebQt1Nh35ZfUq3pJ2ZLkZr21YvRY-f6vgwoZfzIRY/edit?usp=drivesdk",
+      "Cluster Marketing Officer 3": "https://docs.google.com/spreadsheets/d/1IKjG8XisJhlGOY_6i6a7_O476IBXhz-Ox6azNnRH4vA/edit?usp=drivesdk",
+      "Cluster Receptionist": "https://docs.google.com/spreadsheets/d/1G_L0qK5Azzj6YGWK5_5WI9P4CSryc8_nEUfy8xUTYmA/edit?usp=drivesdk"
+    },
+    "miniCluster": {
+      "Village Coordinator Leader": "https://docs.google.com/spreadsheets/d/19Pj0ZhMMeY1xv7_hkhcMos7y1iFpL1une2dSCi43e2U/edit?usp=drivesdk",
+      "Village Security Coordinator 1": "https://docs.google.com/spreadsheets/d/1Jd0N4J2C5oeam40VeycXmXe7TbFouUYCZlXd2rZq7IM/edit?usp=drivesdk",
+      "Village Security Coordinator 2": "https://docs.google.com/spreadsheets/d/1pjZatYuZnnOBdmF9w89imwKMt_M0nkFuok4Sa7a9_40/edit?usp=drivesdk",
+      "Village Security Coordinator 3": "https://docs.google.com/spreadsheets/d/1KH25nYa7A_yYld1UgPlmRjT3pDXWD_qDNyYwyw7VUj0/edit?usp=drivesdk",
+      "Village Security Coordinator 4": "https://docs.google.com/spreadsheets/d/1kHoRc45RMyWGsIhe5yKw38Ldolk9woQqouQXwZ61SUE/edit?usp=drivesdk",
+      "Mini Cluster Receptionist": "https://docs.google.com/spreadsheets/d/1qatb-wAsH5twOBzLWUNgnLTBk0HhwrcBGQ8vglqm7Sk/edit?usp=drivesdk"
+    },
+    "groupLeader": {         
+      "Adhyaksh": "https://docs.google.com/spreadsheets/d/1AJ_2PXiklpBOHQK_rDXnVQbngWDshDLDmOMODCGlZ3Y/edit?usp=drivesdk",
+      "Sachiv": "https://docs.google.com/spreadsheets/d/1z9LFFNUpqvFnGG4ccrHwCT1hTFcMEydFBpPXVbyh8Pk/edit?usp=drivesdk",
+      "Khajindar": "https://docs.google.com/spreadsheets/u/0/d/11IKklOIidFUoCojGKU81U-e-IoRhU7FHdn5J4mpGLw8/htmlview?pli=1"
+    }
+  }
+};
+
+
+const paymentMap = {
+    gaarrkh: {
+    central: { 'Chairman': '100000','Vice Chairman':'100000','Managing Director':'50000','Executive Director':'50000','Operations and CEO':'50000','COO':'50000','CFO':'50000','CHRO':'50000','CTO':'50000','CMO':'50000','IT and security officer':'50000','Legal advisor':'50000','Reception manager':'50000','Office admin':'50000','Shift Supervisor':'50000','Digital reply operator':'50000','Office Boy/Girl':'50000','Membership and franchise development head':'50000','Grievance and redressal officer':'50000' },
+    state: {'State Administrative officer':'100000','State project coordinator':'80000','Office boy':'35000','State public relations officer':'40000','State finance and accountant officer':'50000'},
+    divisional: {'Divisional administrative officer':'80000','Accountant':'30000','Detective':'30000','Office boy':'30000','Auditor':'30000'},
+    zone: {'Zone Administrative officer':'70000','Branch Coordinator + Marketing Head':'25000','Accounting + CSR Assistant':'25000','Zone IT Officer':'25000','Service Tracking Coordinator':'25000','Office Boy':'25000'},
+    cluster: {'Cluster Administrative Officer':'0.1%','Lawyer':'20000','Finance and Operations Controller':'20000','Marketing Officer':'20000','Office Boy':'20000'},
+    miniCluster: {'Mini Cluster Head':'0.1%','HR Officer':'15000','Accountant':'15000','Office Boy':'8000'},
+    groupLeader: {'Group Leader':'7%','Group Leader Assistant':'4000'},
+    worker: {'Worker':'N/A'}
+  },
+  shivshakti: {
+    central: {'Central President':'100000','Vice President':'100000','General Secretary':'100000','Organising Minister':'100000','Head of Media and Communication':'100000','Head of Culture & Events':'100000','Head of Training & Skill Development':'100000','Treasurer / Head of Finance':'100000','Head of Justice & Grievance Redressal':'100000','Head of Research and Policy Planning':'100000'},
+    state: {'Head of State Liaison and Awareness':'70000','State Security Coordinator':'70000','Justice Officer':'70000','State Planning and Development Coordinator':'70000','Receptionist':'40000','State Leadership Representative':'70000'},
+    divisional: {'Divisional Public Relations Officer':'35000','Divisional Justice Officer':'35000','Divisional Security Coordinator':'35000'},
+    zone: {'Zone Leadership Representative':'35000','Zone Justice Chief':'35000','Zone Security Coordinator':'35000','Women’s Planning Coordinator':'  35000','Receptionist':'35000'},
+    cluster: {'Cluster Public Representative':'18000','Cluster Justice Officer':'18000','Cluster Marketing Officer 1':'18000'},
+    miniCluster: {'Village Coordinator Leader':'15000','Village Security Coordinator 1':'15000','Village Security Coordinator 2':'15000','Village Security Coordinator 3':'15000','Village Security Coordinator 4':'15000','Receptionist':'15000'},
+    groupLeader: {'Adyaksh (President)':'3900','Sachiv (Secretary)':'3900','Khajindar (Treasurer)':'3900'},
+    sabhasad: {'Sabhasad':'N/A'}
+  }
+};
+
+
+/* Terms / links: we use your previously uploaded mappings saved in localStorage if present.
+   If not present, you already included many mappings in earlier versions — for simplicity we
+   fallback to a minimal example link. */
+const defaultTermLink = 'https://docs.google.com/document/';
+
+function getOrgData() {
+  try { return JSON.parse(localStorage.getItem('orgData')) || {}; } catch(e){ return {}; }
+}
+
+/* Candidates for Shivshakti Group Leader elections */
+const shivCandidates = ['Adhyaksh','Sachiv','Khajindar'];
+
+/* ==========================
+
+   UI Helpers & Navigation
+   ========================== */
+function showScreen(id){
+  ['welcomeCard','selectOrg','registerCard','login','dashboard'].forEach(x=>{
+    const el = document.getElementById(x);
+    if(el) el.classList.add('hidden');
+  });
+  const target = document.getElementById(id);
+  if(target) target.classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+showScreen('welcomeCard');
+
+/* Step / button wiring */
+const btnGaarrkh = document.getElementById('btn-gaarrkh');
+const btnShiv = document.getElementById('btn-shivshakti');
+[btnGaarrkh, btnShiv].forEach(b=>{
+  b && b.addEventListener('click', ()=> {
+    document.querySelectorAll('.level-btn').forEach(x=>x.classList.remove('selected'));
+    b.classList.add('selected');
+
+    // ✅ Set the hidden field and visible field together
+    const selectedLevel = b.dataset.level;
+    document.getElementById("reg_level").value = selectedLevel;
+    document.getElementById("showLevel").value =
+      selectedLevel === "gaarrkh" ? "Gaarrkh" : "Shivshakti";
+
+    console.log("✅ reg_level set to:", selectedLevel); // Optional: debug
+  });
+});
+
+document.getElementById('toStep2').addEventListener('click', ()=>{
+  showScreen('registerCard');
+  // default selection if none picked:
+  if(!document.getElementById('reg_level').value) {
+    btnGaarrkh && btnGaarrkh.classList.add('selected');
+    document.getElementById('reg_level').value = 'gaarrkh';
+    document.getElementById('showLevel').value = 'Gaarrkh';
+  }
+});
+
+/* Generate registration ID */
+function genId(levelKey){
+  const d=new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const r = String(Math.floor(Math.random()*9000)+1000);
+  const pref = levelKey==='shivshakti' ? 'SHIV' : (levelKey==='gaarrkh' ? 'GAAR' : 'USER');
+  return pref + '-' + y + m + dd + '-' + r;
+}
+document.getElementById('regen').addEventListener('click', ()=> {
+  document.getElementById('regId').value = genId(document.getElementById('reg_level').value || 'gaarrkh');
+});
+document.getElementById('toBank').addEventListener('click', ()=>{
+  const f = document.getElementById('regForm');
+  if(!f.checkValidity()) { f.reportValidity(); return; }
+  document.getElementById('regId').value = genId(document.getElementById('reg_level').value || 'gaarrkh');
+  document.getElementById('regStep2').classList.add('hidden');
+  document.getElementById('regStep3').classList.remove('hidden');
+});
+document.getElementById('backToPersonal').addEventListener('click', ()=>{
+  document.getElementById('regStep3').classList.add('hidden');
+  document.getElementById('regStep2').classList.remove('hidden');
+});
+document.getElementById('toCategory').addEventListener('click', ()=>{
+  if(!document.getElementById('accHolder').value || !document.getElementById('accNumber').value || !document.getElementById('bankName').value || !document.getElementById('ifsc').value){ alert('Fill bank details'); return; }
+  if(!document.getElementById('password').value || !document.getElementById('password2').value){ alert('Enter password & confirm'); return; }
+  if(document.getElementById('password').value !== document.getElementById('password2').value){ alert('Password mismatch'); return; }
+  document.getElementById('username').value = document.getElementById('email').value.trim();
+  document.getElementById('regStep3').classList.add('hidden');
+  document.getElementById('regStep4').classList.remove('hidden');
+});
+// Show payment QR + upload option only for Cluster, Mini Cluster, Group Leader
+document.getElementById('mainCategory').addEventListener('change', ()=>{
+  const val = document.getElementById('mainCategory').value.toLowerCase();
+  const paySec = document.getElementById('paymentSection');
+  if(['cluster','minicluster','groupleader'].includes(val)){
+    paySec.classList.remove('hidden');
+  } else {
+    paySec.classList.add('hidden');
+  }
+});
+
+// Store uploaded payment screenshot in localStorage
+document.getElementById('paymentProof').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    const dataUrl = evt.target.result;
+    const regId = document.getElementById('regId').value || 'TEMP';
+    localStorage.setItem('paymentProof_' + regId, dataUrl);
+    alert('✅ Payment screenshot saved locally.');
+  };
+  reader.readAsDataURL(file);
+});
+
+
+/* Back buttons */
+document.getElementById('backToSelect') && document.getElementById('backToSelect').addEventListener('click', ()=> showScreen('selectOrg'));
+document.getElementById('backToBank') && document.getElementById('backToBank').addEventListener('click', ()=>{
+  document.getElementById('regStep4').classList.add('hidden'); document.getElementById('regStep3').classList.remove('hidden');
+});
+
+/* ==========================
+   UNIVERSAL SUBCATEGORY POPULATION (FULLY FIXED)
+   ========================== */
+function populateSubs() {
+  const main = document.getElementById("mainCategory").value.trim();
+  const orgRaw = (document.getElementById("reg_level").value || "").trim();
+  const subSel = document.getElementById("subCategory");
+  subSel.innerHTML = '<option value="">Select subcategory</option>';
+
+  if (!main || !orgRaw) return;
+
+  // Normalize org name — Gaarrkh / Shivshakti flexible match
+  const orgKey =
+    orgRaw.toLowerCase().includes("shiv") ? "Shivshakti" : "Gaarrkh";
+
+  // Fix capitalization for main category: e.g. central → Central, miniCluster → Mini Cluster
+  let mainKey = main;
+  if (main.toLowerCase() === "minicluster") mainKey = "Mini Cluster";
+  else if (main.toLowerCase() === "groupleader") mainKey = "Group Leader";
+  else if (main.toLowerCase() === "sabhasad") mainKey = "Sabhasad";
+  else mainKey = main.charAt(0).toUpperCase() + main.slice(1).toLowerCase();
+
+  let subList = [];
+
+  // 1️⃣ Try roadmapData (case-insensitive)
+  const roadKeys = Object.keys(roadmapData[orgKey] || {});
+  const matchRoad = roadKeys.find(
+    (k) => k.toLowerCase() === mainKey.toLowerCase()
+  );
+  if (matchRoad) {
+    subList = Object.keys(roadmapData[orgKey][matchRoad]);
+  }
+
+  // 2️⃣ Fallback: paymentMap
+  if (subList.length === 0) {
+    const payKeys = Object.keys(paymentMap[orgKey.toLowerCase()] || {});
+    const matchPay = payKeys.find(
+      (k) => k.toLowerCase() === main.toLowerCase()
+    );
+    if (matchPay) {
+      subList = Object.keys(paymentMap[orgKey.toLowerCase()][matchPay]);
+    }
+  }
+
+  // 3️⃣ Populate dropdown
+  if (subList.length > 0) {
+    subList.forEach((s) => {
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      subSel.appendChild(opt);
+    });
+  } else {
+    const opt = document.createElement("option");
+    opt.textContent = "No subcategories found";
+    opt.disabled = true;
+    subSel.appendChild(opt);
+  }
+
+  // Allow scrolling
+  subSel.style.maxHeight = "240px";
+  subSel.style.overflowY = "auto";
+}
+
+document.getElementById("mainCategory").addEventListener("change", populateSubs);
+document.getElementById('subCategory').addEventListener('change', ()=>{
+  const level = document.getElementById('reg_level').value || 'gaarrkh';
+  const sub = document.getElementById('subCategory').value;
+  const orgData = getOrgData();
+  if(orgData && orgData[level] && orgData[level][document.getElementById('mainCategory').value]){
+    const obj = orgData[level][document.getElementById('mainCategory').value];
+    if(obj && obj.subLinks && obj.subLinks[sub]){
+      document.getElementById('termsLink').href = obj.subLinks[sub]; document.getElementById('termsWrap').classList.remove('hidden'); return;
+    }
+  }
+});
+
+
+
+  /* ==========================
+   Register submit (local + try server)
+   ========================== */
+document.getElementById('submitReg').addEventListener('click', async ()=>{
+  const main = document.getElementById('mainCategory').value, sub = document.getElementById('subCategory').value;
+  // validation
+  if(!main || !sub){ alert('Choose main & subcategory'); return; }
+  // if terms shown require agreement
+  if(!document.getElementById('agreeTC').checked && !document.getElementById('termsWrap').classList.contains('hidden')){ alert('Agree to Terms'); return; }
+
+  const user = {
+    registrationId: document.getElementById('regId').value || genId(document.getElementById('reg_level').value),
+    level: document.getElementById('reg_level').value || 'gaarrkh',
+    fullname: (document.getElementById('fullName') ? document.getElementById('fullName').value.trim() : ''),
+    email: (document.getElementById('email') ? document.getElementById('email').value.trim() : ''),
+    mobile: (document.getElementById('mobile') ? document.getElementById('mobile').value.trim() : ''),
+    altMobile: (document.getElementById('altMobile') ? document.getElementById('altMobile').value.trim() : ''),
+    state: (document.getElementById('state') ? document.getElementById('state').value.trim() : ''),
+    city: (document.getElementById('city') ? document.getElementById('city').value.trim() : ''),
+    pincode: (document.getElementById('pincode') ? document.getElementById('pincode').value.trim() : ''),
+    address: (document.getElementById('address') ? document.getElementById('address').value.trim() : ''),
+    serviceCity: (document.getElementById('serviceCity') ? document.getElementById('serviceCity').value.trim() : ''),
+    serviceZip: (document.getElementById('serviceZip') ? document.getElementById('serviceZip').value.trim() : ''),
+    aadhaar: (document.getElementById('aadhaar') ? document.getElementById('aadhaar').value.trim() : ''),
+    pan: (document.getElementById('pan') ? document.getElementById('pan').value.trim() : ''),
+    accHolder: (document.getElementById('accHolder') ? document.getElementById('accHolder').value.trim() : ''),
+    accNumber: (document.getElementById('accNumber') ? document.getElementById('accNumber').value.trim() : ''),
+    bankName: (document.getElementById('bankName') ? document.getElementById('bankName').value.trim() : ''),
+    ifsc: (document.getElementById('ifsc') ? document.getElementById('ifsc').value.trim() : ''),
+    username: (document.getElementById('username') ? document.getElementById('username').value : (document.getElementById('email') ? document.getElementById('email').value.trim() : '')),
+    password: (document.getElementById('password') ? document.getElementById('password').value : ''),
+    mainCategory: main,
+    subCategory: sub,
+    termsLink: (document.getElementById('termsWrap') && document.getElementById('termsWrap').classList.contains('hidden') ? null : (document.getElementById('termsLink') ? document.getElementById('termsLink').href : null)),
+    submittedAt: new Date().toISOString()
+  };
+
+  // Save locally (offline)
+  const users = JSON.parse(localStorage.getItem('users')||'[]');
+  // prevent duplicates by username
+  if(users.some(u=>u.username && u.username.toLowerCase() === (user.username||'').toLowerCase())){
+    alert('User already exists locally — try login.');
+    showScreen('login'); return;
+  }
+  users.push(user);
+  localStorage.setItem('users', JSON.stringify(users));
+  alert('Registered locally ✅ — attempting server sync (optional)...');
+
+  // try server sync (best effort)
+  try{
+    const res = await fetch(WEB_APP_URL, {
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({action:'register', body:user})
+    });
+    // handle JSON only if server responds JSON
+    try {
+      const resp = await res.json();
+      if(resp && resp.status === 'ok') alert('Synced to server ✅');
+      else console.log('Server register response:', resp);
+    } catch(e){
+      console.log('Server returned non-json response or empty', e);
+    }
+  }catch(e){ console.log('Sync failed', e); }
+
+  // go to login
+  showScreen('login');
+});
+
+/* Auto fill username from email */
+document.getElementById('email').addEventListener('input', ()=> document.getElementById('username').value = document.getElementById('email').value.trim());
+
+/* ==========================
+   HYBRID LOGIN (local first, then server)
+   ========================== */
+function findUserLocal(username){
+  const users = JSON.parse(localStorage.getItem('users')||'[]');
+  return users.find(x=> x.username && x.username.toLowerCase() === (username||'').toLowerCase());
+}
+document.getElementById('loginBtn').addEventListener('click', async ()=>{
+  const u = document.getElementById('loginEmail').value.trim();
+  const p = document.getElementById('loginPassword').value;
+  if(!u || !p){ document.getElementById('loginMsg').textContent='Enter username and password'; return; }
+  document.getElementById('loginMsg').textContent='';
+
+  // local check
+  const localUser = findUserLocal(u);
+  if(localUser){
+    if(localUser.password === p){
+      sessionStorage.setItem('loggedUser', JSON.stringify(localUser));
+      openDashboardForUser(localUser);
+      return;
+    } else {
+      document.getElementById('loginMsg').textContent = 'Incorrect password (local)';
+      // do NOT return — optionally try server below
+    }
+  }
+
+  // try server login (best effort)
+  try{
+    const resp = await fetch(WEB_APP_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'login', body:{username:u, password:p}})
+    }).then(r=>r.json());
+
+    if(resp && resp.status === 'ok' && resp.user){
+      // save to local cache for offline login later
+      localUser ? Object.assign(localUser, resp.user) : (function(){ const arr = JSON.parse(localStorage.getItem('users')||'[]'); arr.push(resp.user); localStorage.setItem('users', JSON.stringify(arr)); })();
+      sessionStorage.setItem('loggedUser', JSON.stringify(resp.user));
+      openDashboardForUser(resp.user);
+      return;
+    } else {
+      document.getElementById('loginMsg').textContent = resp && resp.message ? resp.message : 'Login failed (server)';
+    }
+  }catch(err){
+    //document.getElementById('loginMsg').textContent = 'Offline / server unreachable. If registered locally, login using local credentials.';
+    console.log('server login error', err);
+  }
+});
+
+/* Forgot password demo */
+document.getElementById('forgotBtn').addEventListener('click', ()=>{
+  const u = prompt('Enter your registered email/username (demo).');
+  if(!u) return;
+  const user = findUserLocal(u);
+  if(!user) { alert('User not found locally.'); return; }
+  alert('Demo: Your password is: ' + user.password);
+});
+
+/* ==========================
+   DASHBOARD: OPEN / RENDER
+   ========================== */
+function openDashboardForUser(user){
+  if(!user){ showScreen('login'); return; }
+  showScreen('dashboard');
+  const logged = user || JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  if(!logged){ alert('No user'); showScreen('login'); return; }
+
+  document.getElementById('centerTitle').textContent = `Welcome to ${(logged.level==='gaarrkh') ? 'Gaarrkh' : 'Shivshakti'}`;
+  document.getElementById('pname').textContent = logged.fullname || logged.username;
+  document.getElementById('pid').textContent = logged.registrationId || '';
+  document.getElementById('pcat').textContent = `${logged.mainCategory || ''} — ${logged.subCategory || ''}`;
+  document.getElementById('welcomeUser').textContent = `Welcome, ${(logged.fullname||logged.username)}`;
+  document.getElementById('userRoleSmall').textContent = `${logged.level} · ${logged.mainCategory}`;
+
+  // avatar / profile photo
+  const avatar = document.getElementById('avatar');
+  const storedPhoto = localStorage.getItem('profile_' + (logged.username||''));
+  if(storedPhoto){
+    avatar.innerHTML = '<img src="'+storedPhoto+'" style="width:72px;height:72px;border-radius:8px;object-fit:cover">';
+  } else {
+    avatar.textContent = (logged.fullname||logged.username).split(' ').map(s=>s[0]).slice(0,2).join('');
+  }
+
+  // populate staff chain & assign
+  populateStaffChain(logged);
+  populateAssignTo();
+
+  // render tasks / posts / attendance / payments / duties / roadmap
+  renderPosts();
+  updateAtt();
+  renderMyTasks();
+  renderLinksForUser(logged);
+  renderNotificationsBadge();
+  renderCalendar();
+  renderVotingUI(logged);
+}
+
+/* staffs from mainCategory down to groupLeader (categoryOrder preserved) */
+const categoryOrder = ['central','state','divisional','zone','cluster','miniCluster','groupLeader','worker','sabhasad'];
+
+function populateStaffChain(logged){
+  const start = logged.mainCategory;
+  const level = logged.level;
+  const ordIdx = categoryOrder.indexOf(start);
+  let chainRoles = [];
+  const orgData = getOrgData();
+  if(ordIdx === -1){
+    const obj = orgData[level] && orgData[level][start];
+    if(obj && obj.subs) chainRoles = obj.subs.slice();
+  } else {
+    for(let i = ordIdx; i <= categoryOrder.indexOf('groupLeader') && i < categoryOrder.length; i++){
+      const ct = categoryOrder[i];
+      const obj = orgData[level] && orgData[level][ct];
+      if(obj && obj.subs) chainRoles = chainRoles.concat(obj.subs);
+    }
+  }
+  chainRoles = [...new Set(chainRoles)];
+  sessionStorage.setItem('staffChain', JSON.stringify(chainRoles));
+  const staffSel = document.getElementById('staffList');
+  staffSel.innerHTML = '';
+  if(!chainRoles.length){ const o=document.createElement('option'); o.textContent='No staff roles found'; staffSel.appendChild(o); return; }
+  chainRoles.forEach(r=>{ const o=document.createElement('option'); o.value=r; o.textContent=r; staffSel.appendChild(o); });
+}
+
+function populateAssignTo(){
+  const assignSel = document.getElementById('assignTo');
+  assignSel.innerHTML = '';
+  const chain = JSON.parse(sessionStorage.getItem('staffChain')||'[]');
+  if(!chain.length){ assignSel.innerHTML = '<option>No subordinate roles</option>'; return; }
+  chain.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; assignSel.appendChild(o); });
+}
+function renderLinksForUser() {
+  const user = JSON.parse(sessionStorage.getItem('loggedUser') || 'null');
+  if (!user) return;
+
+  let dutiesLink = '';
+  let roadmapLink = '';
+  let pay = '';
+
+  const orgName = (user.level || '').toLowerCase();       // ✅ fixed
+  const mainName = (user.mainCategory || '').toLowerCase();
+  const subName = (user.subCategory || '').toLowerCase();
+
+  // ✅ 1. Duties link
+  const orgMatch = Object.keys(dutiesData).find(k => k.toLowerCase() === orgName);
+  if (orgMatch) {
+    const mainMatch = Object.keys(dutiesData[orgMatch]).find(k => k.toLowerCase() === mainName);
+    if (mainMatch) {
+      const subMatch = Object.keys(dutiesData[orgMatch][mainMatch]).find(k => k.toLowerCase() === subName);
+      if (subMatch) {
+        dutiesLink = dutiesData[orgMatch][mainMatch][subMatch];
+      }
+    }
+  }
+
+  // ✅ 2. Roadmap link
+  const roadOrg = Object.keys(roadmapData).find(k => k.toLowerCase() === orgName);
+  if (roadOrg) {
+    const roadMain = Object.keys(roadmapData[roadOrg]).find(k => k.toLowerCase() === mainName);
+    if (roadMain) {
+      const roadSub = Object.keys(roadmapData[roadOrg][roadMain]).find(k => k.toLowerCase() === subName);
+      if (roadSub) {
+        roadmapLink = roadmapData[roadOrg][roadMain][roadSub];
+      }
+    }
+  }
+
+  // ✅ 3. Payment
+  const payOrg = Object.keys(paymentMap).find(k => k.toLowerCase() === orgName);
+  if (payOrg) {
+    const payMain = Object.keys(paymentMap[payOrg]).find(k => k.toLowerCase() === mainName);
+    if (payMain) {
+      const paySub = Object.keys(paymentMap[payOrg][payMain]).find(k => k.toLowerCase() === subName);
+      if (paySub) {
+        pay = paymentMap[payOrg][payMain][paySub];
+      }
+    }
+  }
+
+  // ✅ Update Dashboard Boxes
+  document.getElementById('dutiesBox').innerHTML = dutiesLink
+    ? `<a href="${dutiesLink}" target="_blank" style="color:var(--accent)">📋 Open Duties</a>`
+    : 'No duties link available.';
+
+  document.getElementById('roadmapBox').innerHTML = roadmapLink
+    ? `<a href="${roadmapLink}" target="_blank" style="color:var(--accent)">📍 Open Roadmap</a>`
+    : 'No roadmap link available.';
+
+  document.getElementById('paymentsBox').innerHTML = pay
+    ? `💰 Payment: <strong style="color:var(--accent)">₹${pay}</strong>`
+    : 'Payment details not found.';
+}
+
+
+function capitalizeFirst(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+}
+/* ==========================
+   POSTS
+   ========================== */
+
+function renderPosts(){
+  const posts = JSON.parse(localStorage.getItem('posts')||'[]');
+  const root = document.getElementById('posts'); root.innerHTML = '';
+  posts.forEach(p=>{
+    const el = document.createElement('div'); el.style.border='1px solid rgba(255,255,255,0.03)'; el.style.padding='8px'; el.style.marginBottom='8px'; el.style.borderRadius='8px';
+    el.innerHTML = `<div style="font-weight:700">${p.by}</div><div style="font-size:13px;margin-top:6px;color:var(--muted)">${(p.text||'')}</div><div class="small" style="margin-top:6px">${new Date(p.at).toLocaleString()}</div>`;
+    if(p.fileName) el.innerHTML += `<div class="small">Attachment: ${p.fileName}</div>`;
+    root.appendChild(el);
+  });
+}
+document.getElementById('postBtn').addEventListener('click', ()=>{
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null'); if(!logged){ alert('Login first'); return; }
+  const text = document.getElementById('postText').value.trim(); const f = document.getElementById('postFile').files[0];
+  const posts = JSON.parse(localStorage.getItem('posts')||'[]');
+  posts.unshift({by: logged.username, text, fileName: f ? f.name : null, at: new Date().toISOString()});
+  localStorage.setItem('posts', JSON.stringify(posts));
+  renderPosts();
+});
+
+/* ==========================
+   ATTENDANCE
+   ========================== */
+const attLog = document.getElementById('attLog');
+document.getElementById('clockIn').addEventListener('click', ()=>{ addAttendance('in'); });
+document.getElementById('clockOut').addEventListener('click', ()=>{ addAttendance('out'); });
+function addAttendance(type){
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null'); if(!logged){ alert('Login first'); return; }
+  const list = JSON.parse(localStorage.getItem('attendance')||'[]');
+  list.push({user: logged.username, type, at: new Date().toISOString()});
+  localStorage.setItem('attendance', JSON.stringify(list));
+  updateAtt();
+  // notify upward levels
+  notifyUpward(logged, `${logged.username} did ${type} attendance`);
+}
+function updateAtt(){
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null'); if(!logged){ attLog.innerHTML=''; return; }
+  const list = JSON.parse(localStorage.getItem('attendance')||'[]').filter(a=>a.user===logged.username);
+  attLog.innerHTML = list.map(a=>`${a.type.toUpperCase()} — ${new Date(a.at).toLocaleString()}`).join('<br>');
+}
+
+/* ==========================
+   TASKS & Notifications — Enhanced with Popup
+   ========================== */
+
+// Create task
+document.getElementById('createTask').addEventListener('click', async ()=>{
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  if(!logged){ alert('Login first'); return; }
+
+  const t = {
+    id: 'T'+Date.now(),
+    title: document.getElementById('taskTitle').value.trim(),
+    desc: document.getElementById('taskDesc').value.trim(),
+    assignTo: document.getElementById('assignTo').value,
+    priority: document.getElementById('priority').value,
+    deadline: document.getElementById('deadline').value,
+    status: "Pending",
+    createdBy: logged.username,
+    at: new Date().toISOString()
+  };
+
+  const tasks = JSON.parse(localStorage.getItem('tasks')||'[]');
+  tasks.push(t);
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+
+  renderMyTasks();
+
+  // Create notification for assignee
+  createNotification({
+    fromUser: logged.username,
+    toUser: t.assignTo,
+    message: '📢 New Task Assigned: ' + t.title
+  });
+
+  alert('Task created and notification sent.');
+});
+
+// Show tasks for the logged user
+function renderMyTasks(){
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  if(!logged) return;
+  const all = JSON.parse(localStorage.getItem('tasks')||'[]');
+  const my = all.filter(x => x.createdBy === logged.username || x.assignTo === logged.username);
+
+  const out = document.getElementById('myTasks');
+  out.innerHTML = '';
+
+  my.forEach(t=>{
+    const d = document.createElement('div');
+    d.className='task-item';
+    d.innerHTML = `
+      <div style="font-weight:800">${t.title}</div>
+      <div class="small" style="color:var(--muted)">${t.desc}</div>
+      <div class="small">Assigned To: ${t.assignTo} • Priority: ${t.priority} • Status: ${t.status}</div>
+      ${
+        logged.username === t.assignTo
+        ? `<div style="margin-top:6px">
+            <button class="btn ghost" onclick="updateStatusPrompt('${t.id}')">Update Status</button>
+          </div>`
+        : ''
+      }
+    `;
+    out.appendChild(d);
+  });
+}
+
+// Update task status (only assignee can)
+function updateStatusPrompt(id){
+  const all = JSON.parse(localStorage.getItem('tasks')||'[]');
+  const t = all.find(x=>x.id===id); if(!t) return;
+
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  if(!logged || logged.username !== t.assignTo){
+    alert("Only the assigned user can update this task.");
+    return;
+  }
+
+  const s = prompt('Update status (Pending / Running / Complete / Rejected)', t.status);
+  if(s){
+    t.status = s;
+    localStorage.setItem('tasks', JSON.stringify(all));
+    renderMyTasks();
+
+    // Notify creator about the update
+    createNotification({
+      fromUser: logged.username,
+      toUser: t.createdBy,
+      message: `🔔 ${logged.username} updated task "${t.title}" → ${s}`
+    });
+
+    alert('Status updated & creator notified.');
+  }
+}
+
+/* ==========================
+   Notifications with Popup
+   ========================== */
+function createNotification(obj){
+  const id = 'N' + Date.now();
+  const now = new Date().toISOString();
+  const not = {id, fromUser: obj.fromUser||'', toUser: obj.toUser||'', message: obj.message||'', at: now, read:'false'};
+
+  const arr = JSON.parse(localStorage.getItem('notifications')||'[]');
+  arr.unshift(not);
+  localStorage.setItem('notifications', JSON.stringify(arr));
+
+  renderNotificationsBadge();
+}
+
+// Render badge count on 🔔
+function renderNotificationsBadge(){
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  let count = 0;
+  if(logged){
+    const nots = JSON.parse(localStorage.getItem('notifications')||'[]');
+    count = nots.filter(n => n.toUser === logged.username && n.read === 'false').length;
+  }
+  const b = document.getElementById('notifBadge');
+  if(!b) return;
+  if(count > 0){ b.textContent = count; b.classList.remove('hidden'); }
+  else { b.classList.add('hidden'); }
+}
+
+/* ==========================
+   POPUP Notification Listener (Live)
+   ========================== */
+setInterval(()=>{
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  if(!logged) return;
+
+  const nots = JSON.parse(localStorage.getItem('notifications')||'[]');
+  const newNot = nots.find(n => n.toUser === logged.username && n.read === 'false');
+
+  if(newNot){
+    showPopupNotification(newNot.message);
+    newNot.read = 'true';
+    localStorage.setItem('notifications', JSON.stringify(nots));
+    renderNotificationsBadge();
+  }
+}, 4000);
+
+// Popup UI
+function showPopupNotification(message){
+  const popup = document.createElement('div');
+  popup.textContent = message;
+  popup.style.position = 'fixed';
+  popup.style.bottom = '20px';
+  popup.style.right = '20px';
+  popup.style.background = 'rgba(255,183,3,0.95)';
+  popup.style.color = '#062026';
+  popup.style.padding = '12px 16px';
+  popup.style.borderRadius = '10px';
+  popup.style.fontWeight = '600';
+  popup.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
+  popup.style.zIndex = '9999';
+  document.body.appendChild(popup);
+
+  setTimeout(()=>popup.remove(), 4000);
+}
+
+/* ==========================
+   LEAVE / REPORTS SYSTEM
+   ========================== */
+document.getElementById('submitLeave').addEventListener('click', ()=>{
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  if(!logged){ alert('Login first'); return; }
+  const msg = document.getElementById('leaveMsg').value.trim();
+  if(!msg){ alert('Enter message'); return; }
+
+  const leaves = JSON.parse(localStorage.getItem('leaves')||'[]');
+  const entry = {user: logged.username, message: msg, at: new Date().toISOString()};
+  leaves.unshift(entry);
+  localStorage.setItem('leaves', JSON.stringify(leaves));
+  document.getElementById('leaveMsg').value = '';
+  renderLeaveHistory();
+
+  // notify upward
+  notifyUpward(logged, `Leave/Report: ${msg}`);
+  alert('Leave/report submitted.');
+});
+
+function renderLeaveHistory(){
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  if(!logged) return;
+  const leaves = JSON.parse(localStorage.getItem('leaves')||'[]').filter(l=>l.user===logged.username);
+  const out = document.getElementById('leaveHistory');
+  out.innerHTML = leaves.length ? leaves.map(l=>`${new Date(l.at).toLocaleString()} — ${l.message}`).join('<br>') : 'No reports yet.';
+}
+/* Notification Bell dropdown */
+document.getElementById('notifBell').addEventListener('click', ()=>{
+  const box = document.getElementById('notifDropdown');
+  if(box.classList.contains('hidden')) renderNotifDropdown();
+  box.classList.toggle('hidden');
+});
+
+function renderNotifDropdown(){
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  const nots = JSON.parse(localStorage.getItem('notifications')||'[]');
+  const mine = nots.filter(n =>
+    n.toUser === logged.username ||
+    n.toUser === logged.subCategory ||
+    n.toUser === 'all' ||
+    n.toUser === 'admin' ||
+    n.toUser === 'groupLeader'
+  );
+
+  const box = document.getElementById('notifDropdown');
+
+  if(!mine.length){
+    box.innerHTML = '<div class="small muted">No new notifications</div>';
+    return;
+  }
+
+  let html = mine.map(n =>
+    `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div style="font-weight:600">${n.message}</div>
+      <div class="small muted">${new Date(n.at).toLocaleString()}</div>
+    </div>`
+  ).join('');
+
+  // ✅ Add clear all button
+  html += `<div style="text-align:center;margin-top:6px">
+             <button class="btn ghost" style="padding:6px 12px;font-size:12px" onclick="clearMyNotifications()">🧹 Clear All</button>
+           </div>`;
+
+  box.innerHTML = html;
+}
+
+/* Update count on interval */
+function updateNotifCount() {
+  const user = JSON.parse(sessionStorage.getItem('loggedUser'));
+  if (!user || !user.username) return; // ✅ Prevent error before login
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  const notifCount = users.filter(x => x.username === user.username).length;
+  const badge = document.getElementById('notifCount');
+  if (badge) badge.textContent = notifCount;
+}
+setInterval(updateNotifCount, 3000);
+
+function clearMyNotifications(){
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  if(!logged) return;
+  let nots = JSON.parse(localStorage.getItem('notifications')||'[]');
+  nots = nots.filter(n =>
+    !(n.toUser === logged.username ||
+      n.toUser === logged.subCategory ||
+      n.toUser === 'all' ||
+      n.toUser === 'admin' ||
+      n.toUser === 'groupLeader')
+  );
+  localStorage.setItem('notifications', JSON.stringify(nots));
+  document.getElementById('notifDropdown').innerHTML = '<div class="small muted">No new notifications</div>';
+  renderNotificationsBadge();
+  alert('✅ All notifications cleared.');
+}
+
+
+/* ==========================
+   PROFILE PHOTO: upload & store local + server
+   ========================== */
+document.getElementById('profilePhoto').addEventListener('change', (e)=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    const dataUrl = evt.target.result;
+    const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null'); if(!logged){ alert('Login first'); return; }
+    localStorage.setItem('profile_' + logged.username, dataUrl);
+    // update UI
+    document.getElementById('avatar').innerHTML = '<img src="'+dataUrl+'" style="width:72px;height:72px;border-radius:8px;object-fit:cover">';
+    // try server upload (base64)
+    fetch(WEB_APP_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'uploadFile', body:{filename: logged.username + '_profile.jpg', dataUrl}})}).then(r=>r.json()).then(resp=>{
+      if(resp && resp.status === 'ok' && resp.fileUrl){
+        // save profile url server-side (optional)
+        fetch(WEB_APP_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'updateProfilePhoto', body:{username: logged.username, fileUrl: resp.fileUrl}})}).catch(()=>{});
+      }
+    }).catch(()=>{});
+  };
+  reader.readAsDataURL(f);
+});
+
+/* ==========================
+   CALENDAR (basic)
+   ========================== */
+let currentCal = new Date();
+function renderCalendar(){
+  const grid = document.getElementById('calendarGrid');
+  grid.innerHTML = '';
+
+  const year = currentCal.getFullYear();
+  const month = currentCal.getMonth();
+  document.getElementById('calMonthYear').textContent =
+    currentCal.toLocaleString('default',{month:'long'}) + ' ' + year;
+
+  const first = new Date(year, month, 1);
+  const startDay = first.getDay();
+  const days = new Date(year, month + 1, 0).getDate();
+
+  // ✅ Load stored events
+  const events = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+
+  // render blanks
+  for(let i = 0; i < startDay; i++){
+    const blank = document.createElement('div');
+    blank.className = 'cal-day';
+    grid.appendChild(blank);
+  }
+
+  // render days
+  for(let day = 1; day <= days; day++){
+    const d = document.createElement('div');
+    d.className = 'cal-day';
+    const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayEvents = events.filter(e => e.date === dateKey);
+
+    let eventHtml = '';
+    if(dayEvents.length){
+      eventHtml = dayEvents.map(ev => `<div class="small" style="color:var(--accent);margin-top:4px">• ${ev.title}</div>`).join('');
+    }
+
+    d.innerHTML = `<div class="date">${day}</div>${eventHtml}`;
+    grid.appendChild(d);
+  }
+}
+document.getElementById('addEventBtn').addEventListener('click', ()=>{
+  const d = prompt('Event date (YYYY-MM-DD)');
+  if(!d) return;
+  const title = prompt('Event title');
+  if(!title) return;
+  const events = JSON.parse(localStorage.getItem('calendarEvents')||'[]');
+  events.push({date:d, title});
+  localStorage.setItem('calendarEvents', JSON.stringify(events));
+  alert('Event added ✅');
+  renderCalendar(); // ✅ refreshes immediately
+});
+
+document.getElementById('prevMonth').addEventListener('click', ()=>{ currentCal.setMonth(currentCal.getMonth()-1); renderCalendar(); });
+document.getElementById('nextMonth').addEventListener('click', ()=>{ currentCal.setMonth(currentCal.getMonth()+1); renderCalendar(); });
+document.getElementById('addEventBtn').addEventListener('click', ()=>{
+  const d = prompt('Event date (YYYY-MM-DD)');
+  if(!d) return;
+  const title = prompt('Event title');
+  if(!title) return;
+  const events = JSON.parse(localStorage.getItem('calendarEvents')||'[]'); events.push({date:d, title}); localStorage.setItem('calendarEvents', JSON.stringify(events)); alert('Event added (local).'); renderCalendar();
+});
+
+/* ==========================
+   VOTING (Shivshakti: group leader candidates)
+   ========================== */
+function renderVotingUI(logged){
+  const box = document.getElementById('votingUI'); box.innerHTML = '';
+  if(!logged){ box.textContent = 'Login to vote'; return; }
+  // only show candidates for Shivshakti group leader election
+  const isShiv = (logged.level === 'shivshakti');
+  // candidates list (we show the 3 specified names as candidates always)
+  const votes = JSON.parse(localStorage.getItem('votes')||'{}');
+  // show counts
+  const counts = {}; shivCandidates.forEach(c=> counts[c] = 0);
+  Object.values(votes).forEach(v=> { if(counts[v]) counts[v]++; });
+  // If logged user is in a subcategory that is not group leader, allow vote; group leaders are candidates only (they shouldn't vote for themselves?)
+  const canVote = !(logged.mainCategory === 'groupLeader' && shivCandidates.includes(logged.subCategory));
+  let html = '<div style="display:flex;gap:12px">';
+  shivCandidates.forEach(c=>{
+    const alreadyVoted = votes[logged.username];
+    html += `<div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:8px">
+      <div style="font-weight:800">${c}</div>
+      <div class="small">Votes: <strong style="color:var(--accent)">${counts[c]}</strong></div>
+      ${ alreadyVoted ? (alreadyVoted===c ? '<div class="small" style="color:var(--muted)">You voted</div>' : '<div class="small" style="color:var(--muted)">You already voted</div>') : (canVote ? `<div style="margin-top:8px"><button class="btn" onclick="castVote('${c}')">Vote</button></div>` : '<div class="small" style="color:var(--muted)">Cannot vote</div>') }
+    </div>`;
+  });
+  html += '</div>';
+  box.innerHTML = html;
+}
+function castVote(candidate){
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null'); if(!logged){ alert('Login first'); return; }
+  const votes = JSON.parse(localStorage.getItem('votes')||'{}');
+  if(votes[logged.username]) { alert('You already voted'); renderVotingUI(logged); return; }
+  votes[logged.username] = candidate;
+  localStorage.setItem('votes', JSON.stringify(votes));
+  alert('Vote recorded for ' + candidate);
+  // update leader dashboard counts (if leader)
+  renderVotingUI(logged);
+  // try server post
+  fetch(WEB_APP_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'postVote', body:{username:logged.username,candidate}})}).catch(()=>{});
+}
+
+/* ==========================
+   Init: load if logged user exists in session
+   ========================== */
+function initIfLogged(){
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
+  if(logged) openDashboardForUser(logged);
+}
+initIfLogged();
+
+/* Logout */
+function logout(){ sessionStorage.removeItem('loggedUser'); alert('Logged out'); showScreen('login'); }
+
+/* On storage change update lists */
+window.addEventListener('storage', ()=> { populateAssignTo(); populateStaffChain(JSON.parse(sessionStorage.getItem('loggedUser')||'null')); renderNotificationsBadge(); });
+
+/* ==========================
+   Voting / leave upward notifications and server actions are best-effort:
+   We send POSTs to WEB_APP_URL with action names; your Apps Script should implement actions:
+   register, login, createTask, uploadFile, postNotification, updateProfilePhoto, postVote
+   ========================== */
+
+/* small UI helpers */
+function openTab(tab, btn){
+  document.querySelectorAll('.navcol button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('[id^="tab-"]').forEach(t=>t.classList.add('hidden'));
+  const pane = document.getElementById('tab-'+tab);
+  if(pane) pane.classList.remove('hidden');
+}
+
+/* small render of calendar events on load */
+renderCalendar();
+
+/* render notifications badge periodically */
+setInterval(renderNotificationsBadge, 3000);
+
+// ==========================
+// LOGIN FUNCTIONALITY
+// ==========================
+document.getElementById("loginBtn").addEventListener("click", function () {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+  const msg = document.getElementById("loginMsg");
+
+  msg.textContent = "";
+
+  if (!email || !password) {
+    msg.textContent = "Please enter both email and password.";
+    return;
+  }
+
+  // ✅ Dummy local check — you can replace this later with Firebase or Sheet logic
+  const users = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
+  const found = users.find(u => u.email === email && u.password === password);
+
+  if (found) {
+    msg.style.color = "lightgreen";
+    msg.textContent = "Login successful!";
+    localStorage.setItem("loggedInUser", JSON.stringify(found));
+    setTimeout(() => {
+      showScreen("dashboard");
+      document.getElementById("welcomeUser").textContent = "Welcome, " + found.fullName;
+      document.getElementById("pname").textContent = found.fullName;
+      document.getElementById("pid").textContent = found.regId;
+      document.getElementById("pcat").textContent = found.mainCategory + " - " + found.subCategory;
+    }, 800);
+  } else {
+    msg.style.color = "#ff6b6b";
+    msg.textContent = "Invalid email or password.";
+  }
+});
+  
+</script>
+</body>
+</html>
