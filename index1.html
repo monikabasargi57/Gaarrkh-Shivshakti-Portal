@@ -478,46 +478,25 @@ select {
             </div>
           </div>
 
-        <div id="tab-tasks" class="hidden">
-  <h4>Tasks</h4>
-  <div style="display:flex;gap:12px;margin-top:8px">
-    <div style="flex:1">
-      <label>Title</label>
-      <input id="taskTitle">
-
-      <label>Description</label>
-      <textarea id="taskDesc"></textarea>
-
-      <label>Assign to</label>
-      <select id="assignTo" style="background:#fff;color:#000"></select>
-
-      <label>Priority</label>
-      <select id="priority">
-        <option>High</option>
-        <option>Medium</option>
-        <option>Low</option>
-      </select>
-
-      <label>Deadline</label>
-      <input id="deadline" type="date">
-
-      <label>Attachment</label>
-      <input id="taskAttach" type="file">
-
-      <!-- ❌ Removed Status (handled in My Tasks) -->
-
-      <div style="margin-top:8px">
-        <button class="btn" id="createTask">Create Task</button>
-      </div>
-    </div>
-
-    <div style="flex:1">
-      <h5>My Tasks</h5>
-      <div id="myTasks"></div>
-    </div>
-  </div>
-</div>
-
+          <div id="tab-tasks" class="hidden">
+            <h4>Tasks</h4>
+            <div style="display:flex;gap:12px;margin-top:8px">
+              <div style="flex:1">
+                <label>Title</label><input id="taskTitle">
+                <label>Description</label><textarea id="taskDesc"></textarea>
+                <label>Assign to</label><select id="assignTo" style="background:#fff;color:#000"></select>
+                <label>Priority</label><select id="priority"><option>High</option><option>Medium</option><option>Low</option></select>
+                <label>Deadline</label><input id="deadline" type="date">
+                <label>Attachment</label><input id="taskAttach" type="file">
+                <label>Status</label><select id="taskStatus"><option>Pending</option><option>Running</option><option>Complete</option><option>Rejected</option></select>
+                <div style="margin-top:8px"><button class="btn" id="createTask">Create Task</button></div>
+              </div>
+              <div style="flex:1">
+                <h5>My tasks</h5>
+                <div id="myTasks"></div>
+              </div>
+            </div>
+          </div>
 
           <div id="tab-duties" class="hidden">
             <h4>Duties</h4>
@@ -1609,14 +1588,10 @@ function updateAtt(){
 }
 
 /* ==========================
-   TASKS & Notifications — Enhanced with Popup
+   TASKS & Notifications
    ========================== */
-
-// Create task
 document.getElementById('createTask').addEventListener('click', async ()=>{
-  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
-  if(!logged){ alert('Login first'); return; }
-
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null'); if(!logged){ alert('Login first'); return; }
   const t = {
     id: 'T'+Date.now(),
     title: document.getElementById('taskTitle').value.trim(),
@@ -1624,148 +1599,71 @@ document.getElementById('createTask').addEventListener('click', async ()=>{
     assignTo: document.getElementById('assignTo').value,
     priority: document.getElementById('priority').value,
     deadline: document.getElementById('deadline').value,
-    status: "Pending",
+    status: document.getElementById('taskStatus').value,
     createdBy: logged.username,
     at: new Date().toISOString()
   };
-
-  const tasks = JSON.parse(localStorage.getItem('tasks')||'[]');
-  tasks.push(t);
-  localStorage.setItem('tasks', JSON.stringify(tasks));
-
+  const tasks = JSON.parse(localStorage.getItem('tasks')||'[]'); tasks.push(t); localStorage.setItem('tasks', JSON.stringify(tasks));
   renderMyTasks();
-
-  // Create notification for assignee
-  createNotification({
-    fromUser: logged.username,
-    toUser: t.assignTo,
-    message: '📢 New Task Assigned: ' + t.title
-  });
-
+  // create notification for assignee
+  createNotification({fromUser: logged.username, toUser: t.assignTo, message: 'New task assigned: ' + t.title});
   alert('Task created and notification sent.');
+  // try server push (best effort)
+  try{
+    await fetch(WEB_APP_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'createTask', body:t})});
+  }catch(e){}
 });
 
-// Show tasks for the logged user
 function renderMyTasks(){
-  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
-  if(!logged) return;
+  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null'); if(!logged) return;
   const all = JSON.parse(localStorage.getItem('tasks')||'[]');
-  const my = all.filter(x => x.createdBy === logged.username || x.assignTo === logged.username);
-
-  const out = document.getElementById('myTasks');
-  out.innerHTML = '';
-
+  const my = all.filter(x=> x.createdBy === logged.username || x.assignTo === logged.subCategory || x.assignTo === logged.username);
+  const out = document.getElementById('myTasks'); out.innerHTML='';
   my.forEach(t=>{
-    const d = document.createElement('div');
-    d.className='task-item';
-    d.innerHTML = `
-      <div style="font-weight:800">${t.title}</div>
+    const d = document.createElement('div'); d.className='task-item';
+    d.innerHTML = `<div style="font-weight:800">${t.title}</div>
       <div class="small" style="color:var(--muted)">${t.desc}</div>
-      <div class="small">Assigned To: ${t.assignTo} • Priority: ${t.priority} • Status: ${t.status}</div>
-      ${
-        logged.username === t.assignTo
-        ? `<div style="margin-top:6px">
-            <button class="btn ghost" onclick="updateStatusPrompt('${t.id}')">Update Status</button>
-          </div>`
-        : ''
-      }
-    `;
+      <div class="small">AssignTo: ${t.assignTo} • Priority: ${t.priority} • Status: ${t.status}</div>
+      <div style="margin-top:6px"><button class="btn ghost" onclick="updateStatusPrompt('${t.id}')">Update Status</button></div>`;
     out.appendChild(d);
   });
 }
-
-// Update task status (only assignee can)
 function updateStatusPrompt(id){
   const all = JSON.parse(localStorage.getItem('tasks')||'[]');
   const t = all.find(x=>x.id===id); if(!t) return;
-
-  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
-  if(!logged || logged.username !== t.assignTo){
-    alert("Only the assigned user can update this task.");
-    return;
-  }
-
-  const s = prompt('Update status (Pending / Running / Complete / Rejected)', t.status);
-  if(s){
-    t.status = s;
-    localStorage.setItem('tasks', JSON.stringify(all));
-    renderMyTasks();
-
-    // Notify creator about the update
-    createNotification({
-      fromUser: logged.username,
-      toUser: t.createdBy,
-      message: `🔔 ${logged.username} updated task "${t.title}" → ${s}`
-    });
-
-    alert('Status updated & creator notified.');
-  }
+  const s = prompt('Enter new status (Pending / Running / Complete / Rejected)', t.status);
+  if(s){ t.status = s; localStorage.setItem('tasks', JSON.stringify(all)); renderMyTasks(); alert('Status updated'); }
 }
 
-/* ==========================
-   Notifications with Popup
-   ========================== */
+/* Notifications stored in sheet 'Notifications' or localStorage 'notifications' */
 function createNotification(obj){
+  // obj: {fromUser, toUser, message}
   const id = 'N' + Date.now();
   const now = new Date().toISOString();
   const not = {id, fromUser: obj.fromUser||'', toUser: obj.toUser||'', message: obj.message||'', at: now, read:'false'};
-
-  const arr = JSON.parse(localStorage.getItem('notifications')||'[]');
-  arr.unshift(not);
-  localStorage.setItem('notifications', JSON.stringify(arr));
-
+  const arr = JSON.parse(localStorage.getItem('notifications')||'[]'); arr.unshift(not); localStorage.setItem('notifications', JSON.stringify(arr));
   renderNotificationsBadge();
+  // try server save
+  fetch(WEB_APP_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'postNotification', body:not})}).catch(()=>{});
 }
 
-// Render badge count on 🔔
+/* Notifications upward: notify from group leader up to central (role chain) */
+function notifyUpward(user, message){
+  // send notification to all higher-level roles (we'll just send to 'admin' and 'groupLeader' for demo)
+  createNotification({fromUser: user.username, toUser: 'admin', message});
+  createNotification({fromUser: user.username, toUser: 'groupLeader', message});
+}
+
+/* Notifications badge */
 function renderNotificationsBadge(){
   const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
   let count = 0;
   if(logged){
     const nots = JSON.parse(localStorage.getItem('notifications')||'[]');
-    count = nots.filter(n => n.toUser === logged.username && n.read === 'false').length;
+    count = nots.filter(n => n.toUser === logged.username || n.toUser === logged.subCategory || n.toUser === 'all' || n.toUser === 'admin' || n.toUser === 'groupLeader').length;
   }
   const b = document.getElementById('notifBadge');
-  if(!b) return;
-  if(count > 0){ b.textContent = count; b.classList.remove('hidden'); }
-  else { b.classList.add('hidden'); }
-}
-
-/* ==========================
-   POPUP Notification Listener (Live)
-   ========================== */
-setInterval(()=>{
-  const logged = JSON.parse(sessionStorage.getItem('loggedUser')||'null');
-  if(!logged) return;
-
-  const nots = JSON.parse(localStorage.getItem('notifications')||'[]');
-  const newNot = nots.find(n => n.toUser === logged.username && n.read === 'false');
-
-  if(newNot){
-    showPopupNotification(newNot.message);
-    newNot.read = 'true';
-    localStorage.setItem('notifications', JSON.stringify(nots));
-    renderNotificationsBadge();
-  }
-}, 4000);
-
-// Popup UI
-function showPopupNotification(message){
-  const popup = document.createElement('div');
-  popup.textContent = message;
-  popup.style.position = 'fixed';
-  popup.style.bottom = '20px';
-  popup.style.right = '20px';
-  popup.style.background = 'rgba(255,183,3,0.95)';
-  popup.style.color = '#062026';
-  popup.style.padding = '12px 16px';
-  popup.style.borderRadius = '10px';
-  popup.style.fontWeight = '600';
-  popup.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
-  popup.style.zIndex = '9999';
-  document.body.appendChild(popup);
-
-  setTimeout(()=>popup.remove(), 4000);
+  if(count > 0){ b.textContent = count; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
 }
 
 /* ==========================
